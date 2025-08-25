@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -9,6 +10,5 @@ use clap::Parser;
 )]
 pub struct Args {
     /// Path of the file
-    pub file: String,
+    pub file: PathBuf,
 }
-
