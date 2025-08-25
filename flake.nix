@@ -14,7 +14,6 @@
           cargo
           clippy
           rustfmt
-          openssl
           rust-analyzer
           pkg-config
         ];
