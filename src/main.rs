@@ -6,5 +6,9 @@ use clap::{Parser, parser};
 fn main() {
     let args = Args::parse();
 
-    println!("Processing file: {}", args.file);
+    match args {
+        Args { file: f } => {
+            println!("File to be removed: {}", f);
+        }
+    }
 }
