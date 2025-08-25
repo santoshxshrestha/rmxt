@@ -2,6 +2,13 @@
 name = "rmxt"
 version = "0.1.0"
 edition = "2024"
+authors = ["Santosh Shrestha <santoshxshrestha@gmail.com> "]
+description = "A replacement for the 'rm' command with a trash feature for safer file deletion."
+license = "MIT"
+repository = "https://github.com/santoshxshrestha/rmxt"
+homepage = "https://github.com/santoshxshrestha/rmxt"
+documentation = "https://github.com/santoshxshrestha/rmxt#readme"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.5.45", features = ["derive"] }
