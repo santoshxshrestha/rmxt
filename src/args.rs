@@ -10,5 +10,5 @@ use std::path::PathBuf;
 )]
 pub struct Args {
     /// Path of the file
-    pub file: PathBuf,
+    pub file: Vec<PathBuf>,
 }

@@ -21,11 +21,13 @@ fn main() {
         fs::create_dir(&trash).unwrap();
     }
 
-    // moving the file to trash
-    let name_of_file = file_path.file_name().unwrap();
-    let new_path = trash.join(name_of_file);
+    for file in file_path {
+        // moving the file to trash
+        let name_of_file = file.file_name().unwrap();
+        let new_path = trash.join(name_of_file);
 
-    if let Err(e) = rename(file_path, new_path) {
-        eprintln!("Error deleting file: {e}");
+        if let Err(e) = rename(file, new_path) {
+            eprintln!("Error deleting file: {e}");
+        }
     }
 }
