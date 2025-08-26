@@ -2,6 +2,9 @@
 
 `rmxt` is a safer, recoverable alternative to the traditional `rm` command. Instead of permanently deleting files, `rmxt` moves them to a trash directory, allowing you to recover them later if needed.
 
+we are not putting the empty directory in the trash as it serves no purpose
+as it can be created again easily
+
 ## Features
 
 - Prevents accidental permanent deletion of files.
