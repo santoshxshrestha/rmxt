@@ -10,6 +10,20 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
+
   publish:
     needs: build
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
