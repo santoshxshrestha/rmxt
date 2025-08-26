@@ -13,6 +13,10 @@ pub struct Args {
     pub file: Vec<PathBuf>,
 
     /// Remove directories and their contents recursively
-    #[arg(short = 'r', long, default_value = "true")]
+    #[arg(short = 'r', long, default_value = "false")]
     pub recursive: bool,
+
+    /// Force removal of files without prompt
+    #[arg(short = 'f', long, default_value = "false")]
+    pub force: bool,
 }
