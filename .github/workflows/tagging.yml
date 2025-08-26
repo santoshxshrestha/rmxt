@@ -1,0 +1,57 @@
+name: tag
+
+on:
+  workflow_run:
+    workflows: ["Rust"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Get current version
+        id: current
+        run: |
+          ver=$(grep '^version' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$ver" >> $GITHUB_OUTPUT
+
+      - name: Get previous version from main
+        id: previous
+        run: |
+          prev_ver=$(git show HEAD^:Cargo.toml | grep '^version' | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$prev_ver" >> $GITHUB_OUTPUT
+
+      - name: Check for version change
+        id: changed
+        run: |
+          if [ "${{ steps.current.outputs.version }}" != "${{ steps.previous.outputs.version }}" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+          else
+          echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Tag and push version
+        if: steps.changed.outputs.changed == 'true'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.current.outputs.version }}"
+          git push origin "v${{ steps.current.outputs.version }}"
