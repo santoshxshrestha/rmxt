@@ -12,6 +12,10 @@ pub struct Args {
     /// Path of the file
     pub file: Vec<PathBuf>,
 
+    /// Clean up the trash directory
+    #[arg(long, default_value = "false")]
+    pub tidy: bool,
+
     /// Remove directories and their contents recursively
     #[arg(short = 'r', long, default_value = "false")]
     pub recursive: bool,

@@ -11,9 +11,14 @@ fn main() {
     let paths = args.file;
     let recursive = args.recursive;
     let force = args.force;
+    let tidy = args.tidy;
 
     // creating the trash directory
     let trash = home_dir().unwrap().join(".trash/");
+
+    if tidy {
+        fs::remove_dir_all(&trash).unwrap();
+    }
 
     if !fs::exists(&trash).unwrap() {
         fs::create_dir(&trash).unwrap();
