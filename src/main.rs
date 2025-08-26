@@ -12,6 +12,7 @@ fn main() {
     let recursive = args.recursive;
     let force = args.force;
     let tidy = args.tidy;
+    let dir = args.dir;
 
     // getting the home directory and appending .trash to it
     let trash = home_dir().unwrap().join(".trash/");
@@ -32,8 +33,12 @@ fn main() {
             if !force {
                 eprintln!("rmxd: cannot remove {path:?}: Is a directory");
             }
+            if dir && fs::read(&path).iter().next().is_none() {
+                fs::remove_dir(&path).unwrap()
+            }
             continue;
         }
+
         // moving the file to trash
         let name_of_file = path.file_name().unwrap();
         let new_path = trash.join(name_of_file);
