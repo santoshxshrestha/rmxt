@@ -15,7 +15,10 @@ fn main() {
     let dir = args.dir;
 
     // getting the home directory and appending .trash to it
-    let trash = home_dir().unwrap().join(".trash/");
+    let trash = match home_dir() {
+        Some(dir) => dir.join(".trash/"),
+        None => panic!("Could not find home directory"),
+    };
 
     // tidying the trash directory if the flag is set
     if tidy {
