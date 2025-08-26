@@ -11,4 +11,8 @@ use std::path::PathBuf;
 pub struct Args {
     /// Path of the file
     pub file: Vec<PathBuf>,
+
+    /// Remove directories and their contents recursively
+    #[arg(short = 'r', long, default_value = "true")]
+    pub recursive: bool,
 }
