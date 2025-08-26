@@ -4,6 +4,44 @@ use clap::Parser;
 use dirs::home_dir;
 use std::fs::{self, rename};
 
+pub fn get_trash_directory() -> std::path::PathBuf {
+    match home_dir() {
+        Some(dir) => dir.join(".trash/"),
+        None => panic!("Could not find home directory"),
+    }
+}
+
+pub fn tidy_trash_directory() {
+    let trash = get_trash_directory();
+
+    match fs::metadata(&trash) {
+        Ok(metadata) => {
+            if metadata.is_dir() {
+                match fs::remove_dir_all(&trash) {
+                    Ok(_) => {
+                        println!("Trash directory cleaned.");
+
+                        if let Err(e) = fs::create_dir_all(&trash) {
+                            eprintln!("Error recreating trash directory: {e}");
+                        }
+                    }
+                    Err(e) => eprintln!("Error tidying trash directory: {e}"),
+                }
+            } else {
+                eprintln!("Path exists but is not a directory.");
+            }
+        }
+        Err(e) => {
+            println!("Trash directory does not exist or cannot be accessed: {e}");
+            println!("Creating trash directory at: {:?}", &trash);
+
+            if let Err(e) = fs::create_dir_all(&trash) {
+                eprintln!("Error creating trash directory: {e}");
+            }
+        }
+    }
+}
+
 fn main() {
     // parsing the args
     let args = Args::parse();
@@ -14,15 +52,12 @@ fn main() {
     let tidy = args.tidy;
     let dir = args.dir;
 
-    // getting the home directory and appending .trash to it
-    let trash = match home_dir() {
-        Some(dir) => dir.join(".trash/"),
-        None => panic!("Could not find home directory"),
-    };
+    let trash = get_trash_directory();
 
     // tidying the trash directory if the flag is set
     if tidy {
-        fs::remove_dir_all(&trash).unwrap();
+        tidy_trash_directory();
+        return;
     }
 
     // creating the trash directory if it doesn't exist

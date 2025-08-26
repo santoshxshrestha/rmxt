@@ -1,6 +1,6 @@
 [package]
 name = "rmxt"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 authors = ["Santosh Shrestha <santoshxshrestha@gmail.com> "]
 description = "A replacement for the 'rm' command with a trash feature for safer file deletion."
