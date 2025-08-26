@@ -23,4 +23,8 @@ pub struct Args {
     /// Force removal of files without prompt
     #[arg(short = 'f', long, default_value = "false")]
     pub force: bool,
+
+    /// Remove empty directories
+    #[arg(short = 'd', long, default_value = "false")]
+    pub dir: bool,
 }
