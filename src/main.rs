@@ -13,17 +13,20 @@ fn main() {
     let force = args.force;
     let tidy = args.tidy;
 
-    // creating the trash directory
+    // getting the home directory and appending .trash to it
     let trash = home_dir().unwrap().join(".trash/");
 
+    // tidying the trash directory if the flag is set
     if tidy {
         fs::remove_dir_all(&trash).unwrap();
     }
 
+    // creating the trash directory if it doesn't exist
     if !fs::exists(&trash).unwrap() {
         fs::create_dir(&trash).unwrap();
     }
 
+    // iterating over the paths
     for path in paths {
         if path.is_dir() && !recursive {
             if !force {
