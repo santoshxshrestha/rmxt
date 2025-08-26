@@ -29,12 +29,16 @@ fn main() {
 
     // iterating over the paths
     for path in paths {
+        if path.is_dir() && dir {
+            if let Err(e) = fs::remove_dir(&path) {
+                eprintln!("Error removing directory: {e}")
+            }
+            continue;
+        }
+
         if path.is_dir() && !recursive {
             if !force {
                 eprintln!("rmxd: cannot remove {path:?}: Is a directory");
-            }
-            if dir && fs::read(&path).iter().next().is_none() {
-                fs::remove_dir(&path).unwrap()
             }
             continue;
         }
