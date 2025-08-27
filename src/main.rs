@@ -80,50 +80,51 @@ fn main() {
     // parsing the args
     let args = Args::parse();
 
-    let paths = args.file;
+    let paths = args.get_files();
     let recursive = args.recursive;
     let force = args.force;
-    let tidy = args.tidy;
     let dir = args.dir;
-    let list = args.list;
 
     let trash = get_trash_directory();
 
-    // listing the trash directory if the flag is set
-    if list {
+    // listing the trash directory if the list command is used
+    if args.is_list() {
         list_trash();
         return;
     }
 
-    // tidying the trash directory if the flag is set
-    if tidy {
+    // tidying the trash directory if the tidy command is used
+    if args.is_tidy() {
         tidy_trash_directory();
         return;
     }
 
-    // creating the trash directory if it doesn't exist
-    if !fs::exists(&trash).unwrap() {
-        fs::create_dir(&trash).unwrap();
-    }
-
-    // iterating over the paths
-    for path in paths {
-        if path.is_dir() && dir {
-            if let Err(e) = fs::remove_dir(&path) {
-                eprintln!("Error removing directory: {e}")
-            }
-            continue;
+    // Handle remove command (or default behavior when no subcommand)
+    if args.is_remove() {
+        // creating the trash directory if it doesn't exist
+        if !fs::exists(&trash).unwrap() {
+            fs::create_dir(&trash).unwrap();
         }
 
-        if path.is_dir() && !recursive {
-            if !force {
-                eprintln!("rmxd: cannot remove {path:?}: Is a directory");
+        // iterating over the paths
+        for path in paths {
+            if path.is_dir() && dir {
+                if let Err(e) = fs::remove_dir(&path) {
+                    eprintln!("Error removing directory: {e}")
+                }
+                continue;
             }
-            continue;
-        }
 
-        if let Err(e) = move_to_trash(&path) {
-            eprintln!("Error moving to trash: {e}");
+            if path.is_dir() && !recursive {
+                if !force {
+                    eprintln!("rmxd: cannot remove {path:?}: Is a directory");
+                }
+                continue;
+            }
+
+            if let Err(e) = move_to_trash(&path) {
+                eprintln!("Error moving to trash: {e}");
+            }
         }
     }
 }
