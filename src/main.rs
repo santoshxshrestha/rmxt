@@ -42,6 +42,21 @@ pub fn tidy_trash_directory() {
     }
 }
 
+pub fn move_to_trash(path: &std::path::Path) -> Result<(), std::io::Error> {
+    let trash = get_trash_directory();
+    let file_name = match path.file_name() {
+        Some(name) => name,
+        None => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "Invalid file name",
+            ));
+        }
+    };
+    let new_path = trash.join(file_name);
+    rename(path, new_path)
+}
+
 fn main() {
     // parsing the args
     let args = Args::parse();
@@ -81,14 +96,8 @@ fn main() {
             continue;
         }
 
-        // moving the file to trash
-        let name_of_file = path.file_name().unwrap();
-        let new_path = trash.join(name_of_file);
-
-        if let Err(e) = rename(path, new_path) {
-            if !force {
-                eprintln!("Error moving file to trash: {e}");
-            }
+        if let Err(e) = move_to_trash(&path) {
+            eprintln!("Error moving to trash: {e}");
         }
     }
 }
