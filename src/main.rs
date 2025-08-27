@@ -54,7 +54,19 @@ pub fn move_to_trash(path: &std::path::Path) -> Result<(), std::io::Error> {
             ));
         }
     };
-    let new_path = trash.join(file_name);
+
+    let mut new_path = trash.join(file_name);
+    let mut count = 1;
+
+    while new_path.exists() {
+        let file_stem = path.file_stem().unwrap_or_default().to_string_lossy();
+        let extension = path
+            .extension()
+            .map(|ext| format!(".{}", ext.to_string_lossy()))
+            .unwrap_or_default();
+        new_path = trash.join(format!("{file_stem}-{count}{extension}"));
+        count += 1;
+    }
     rename(path, new_path)
 }
 
