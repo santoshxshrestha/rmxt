@@ -12,6 +12,10 @@ pub struct Args {
     /// Path of the file
     pub file: Vec<PathBuf>,
 
+    /// List files in the trash directory
+    #[arg(long, default_value = "false")]
+    pub list: bool,
+
     /// Clean up the trash directory
     #[arg(long, default_value = "false")]
     pub tidy: bool,

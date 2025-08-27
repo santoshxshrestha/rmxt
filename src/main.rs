@@ -3,6 +3,7 @@ use args::Args;
 use clap::Parser;
 use dirs::home_dir;
 use std::fs::{self, rename};
+use walkdir::WalkDir;
 
 pub fn get_trash_directory() -> std::path::PathBuf {
     match home_dir() {
@@ -57,6 +58,24 @@ pub fn move_to_trash(path: &std::path::Path) -> Result<(), std::io::Error> {
     rename(path, new_path)
 }
 
+pub fn list_trash() {
+    let trash = get_trash_directory();
+    match WalkDir::new(&trash)
+        .into_iter()
+        .collect::<Result<Vec<_>, _>>()
+    {
+        Ok(entries) => {
+            for entry in entries {
+                match entry.path().to_str() {
+                    Some(path) => println!("{path}"),
+                    None => eprintln!("Error: Unable to convert path to string"),
+                }
+            }
+        }
+        Err(e) => eprintln!("Error: Failed to read trash directory - {e}"),
+    }
+}
+
 fn main() {
     // parsing the args
     let args = Args::parse();
@@ -66,8 +85,15 @@ fn main() {
     let force = args.force;
     let tidy = args.tidy;
     let dir = args.dir;
+    let list = args.list;
 
     let trash = get_trash_directory();
+
+    // listing the trash directory if the flag is set
+    if list {
+        list_trash();
+        return;
+    }
 
     // tidying the trash directory if the flag is set
     if tidy {
