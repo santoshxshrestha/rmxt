@@ -104,7 +104,7 @@ fn main() {
     let recursive = args.recursive;
     let force = args.force;
     let dir = args.dir;
-    let ignore = args.ingore;
+    let ignore = args.ignore;
 
     let trash = get_trash_directory();
 
@@ -144,7 +144,7 @@ fn main() {
             }
 
             if ignore {
-                if let Err(e) = move_to_trash(&path) {
+                if let Err(e) = permanently_delete(&path) {
                     eprintln!("Error moving to trash: {e}");
                 }
             } else if let Err(e) = move_to_trash(&path) {
