@@ -1,9 +1,10 @@
+#![allow(unused)]
+use chrono::{DateTime, Local, TimeZone};
 mod args;
 use args::Args;
 use clap::Parser;
 use dirs::home_dir;
 use std::fs::{self, rename};
-use walkdir::WalkDir;
 
 pub fn get_trash_directory() -> std::path::PathBuf {
     match home_dir() {
@@ -71,20 +72,26 @@ pub fn move_to_trash(path: &std::path::Path) -> Result<(), std::io::Error> {
 }
 
 pub fn list_trash() {
-    let trash = get_trash_directory();
-    match WalkDir::new(&trash)
-        .into_iter()
-        .collect::<Result<Vec<_>, _>>()
-    {
-        Ok(entries) => {
-            for entry in entries {
-                match entry.path().to_str() {
-                    Some(path) => println!("{path}"),
-                    None => eprintln!("Error: Unable to convert path to string"),
-                }
+    match trash::os_limited::list() {
+        Ok(trash) => {
+            for entry in trash {
+                let time_deleted = Local
+                    .timestamp_opt(entry.time_deleted, 0)
+                    .single()
+                    .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+                    .unwrap_or_else(|| "Unknown time".to_string());
+
+                println!(
+                    "Name: {}\nOriginal Location: {}\nDeleted At: {}\n",
+                    entry.name.to_string_lossy(),
+                    entry.original_parent.to_string_lossy(),
+                    time_deleted
+                );
             }
         }
-        Err(e) => eprintln!("Error: Failed to read trash directory - {e}"),
+        Err(e) => {
+            eprintln!("Failed to list trash entries: {e}");
+        }
     }
 }
 
