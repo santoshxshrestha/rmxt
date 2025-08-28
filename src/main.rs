@@ -70,14 +70,6 @@ pub fn move_to_trash(path: &std::path::Path) -> Result<(), std::io::Error> {
     rename(path, new_path)
 }
 
-pub fn permanently_delete(path: &std::path::Path) -> Result<(), std::io::Error> {
-    if let Err(e) = fs::remove_dir_all(path) {
-        Err(e)
-    } else {
-        Ok(())
-    }
-}
-
 pub fn list_trash() {
     let trash = get_trash_directory();
     match WalkDir::new(&trash)
@@ -144,8 +136,9 @@ fn main() {
             }
 
             if ignore {
-                if let Err(e) = permanently_delete(&path) {
-                    eprintln!("Error moving to trash: {e}");
+                // not need of seperate function for this
+                if let Err(e) = fs::remove_dir_all(&path) {
+                    eprintln!("Error deleting permanently: {e}")
                 }
             } else if let Err(e) = move_to_trash(&path) {
                 eprintln!("Error moving to trash: {e}");
