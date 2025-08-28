@@ -70,6 +70,14 @@ pub fn move_to_trash(path: &std::path::Path) -> Result<(), std::io::Error> {
     rename(path, new_path)
 }
 
+pub fn permanently_delete(path: &std::path::Path) -> Result<(), std::io::Error> {
+    if let Err(e) = fs::remove_dir_all(path) {
+        Err(e)
+    } else {
+        Ok(())
+    }
+}
+
 pub fn list_trash() {
     let trash = get_trash_directory();
     match WalkDir::new(&trash)
@@ -96,6 +104,7 @@ fn main() {
     let recursive = args.recursive;
     let force = args.force;
     let dir = args.dir;
+    let ignore = args.ingore;
 
     let trash = get_trash_directory();
 
@@ -134,7 +143,11 @@ fn main() {
                 continue;
             }
 
-            if let Err(e) = move_to_trash(&path) {
+            if ignore {
+                if let Err(e) = move_to_trash(&path) {
+                    eprintln!("Error moving to trash: {e}");
+                }
+            } else if let Err(e) = move_to_trash(&path) {
                 eprintln!("Error moving to trash: {e}");
             }
         }

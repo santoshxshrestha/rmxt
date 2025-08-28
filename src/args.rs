@@ -16,6 +16,10 @@ pub struct Args {
     #[command(subcommand)]
     pub command: Option<Commands>,
 
+    /// Don't put the file in trash, remove it permanently
+    #[arg(short = 'i', long, global = true)]
+    pub ingore: bool,
+
     /// Remove directories and their contents recursively
     #[arg(short = 'r', long, global = true)]
     pub recursive: bool,
