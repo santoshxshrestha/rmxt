@@ -2,12 +2,7 @@ use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
-#[command(
-    name = "rmxd",
-    author = "santoshxshrestha",
-    version,
-    about = "Remove files or directories"
-)]
+#[command(name = "rmxd", author = "santoshxshrestha", version, about)]
 pub struct Args {
     /// Path of the file (when no subcommand is used)
     #[arg(help = "Files or directories to remove")]
