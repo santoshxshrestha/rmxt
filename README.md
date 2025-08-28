@@ -91,6 +91,20 @@ rmxt list
 rmxt tidy
 ```
 
+### Permanent Deletion (Bypass Trash)
+```bash
+# Permanently delete a file (bypass trash directory)
+rmxt -i file.txt
+
+# Permanently delete multiple files
+rmxt -i file1.txt file2.txt
+
+# Permanently delete a directory and its contents
+rmxt -ir directory/
+```
+
+> **⚠️ Warning:** When using the `-i, --ignore` option, files are permanently deleted and cannot be recovered from the trash directory. Use with caution!
+
 ### Combined Options
 ```bash
 # Recursively and forcefully remove a directory
@@ -98,6 +112,9 @@ rmxt -rf directory/
 
 # Remove empty directories with force
 rmxt -df empty_dir1/ empty_dir2/
+
+# Permanently and forcefully remove a directory
+rmxt -ifr directory/
 ```
 
 ## Trash Directory Location
@@ -163,11 +180,20 @@ find ~/.trash/ -type d
 
 | Option | Description |
 |--------|-------------|
+| `-i, --ignore` | Don't put the file in trash, remove it permanently |
 | `-r, --recursive` | Remove directories and their contents recursively |
 | `-f, --force` | Force removal without prompts |
 | `-d, --dir` | Remove empty directories |
+| `-h, --help` | Print help information |
+| `-V, --version` | Print version information |
+
+### Subcommands
+
+| Command | Description |
+|---------|-------------|
 | `list` | List all files in the trash directory |
 | `tidy` | Permanently delete all files in the trash directory |
+| `help` | Print help message or help for specific subcommand |
 
 ## Warning
 
