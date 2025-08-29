@@ -15,10 +15,6 @@ pub struct Args {
     #[arg(short = 'i', long, global = true)]
     pub ignore: bool,
 
-    /// Purge files from the trash directory
-    #[arg(short = 'p', long, global = true)]
-    pub purge: bool,
-
     /// Remove directories and their contents recursively
     #[arg(short = 'r', long, global = true)]
     pub recursive: bool,
@@ -42,11 +38,23 @@ pub enum Commands {
     #[command(name = "tidy")]
     Tidy,
 
+    /// recover all the content of the trash
+    #[command(name = "recover-all")]
+    RecoverAll,
+
     /// Recover files from the trash directory
     #[command(name = "recover")]
     Recover {
         /// Name of the file to recover
         #[arg(help = "Name of the file to recover from trash")]
+        name: String,
+    },
+
+    /// Purge files from the trash directory
+    #[command(name = "purge")]
+    Purge {
+        /// Purge files from the trash directory
+        #[arg(help = "Name of the file to purge")]
         name: String,
     },
 }
@@ -70,6 +78,11 @@ impl Args {
         matches!(self.command, Some(Commands::Tidy))
     }
 
+    /// Check if RecoverAll command is active
+    pub fn is_recover_all(&self) -> bool {
+        matches!(self.command, Some(Commands::RecoverAll))
+    }
+
     /// Check if recover command is active
     pub fn is_recover(&self) -> bool {
         matches!(self.command, Some(Commands::Recover { .. }))
@@ -83,13 +96,21 @@ impl Args {
         }
     }
 
+    /// Check if purge flag is set
+    pub fn is_purge(&self) -> bool {
+        matches!(self.command, Some(Commands::Purge { .. }))
+    }
+
+    /// Get the name to purge (if purge command is active)
+    pub fn get_purge_name(&self) -> Option<&str> {
+        match &self.command {
+            Some(Commands::Recover { name }) => Some(name),
+            _ => None,
+        }
+    }
+
     /// Check if remove command is active (default behavior when no subcommand)
     pub fn is_remove(&self) -> bool {
         self.command.is_none()
-    }
-
-    /// Check if purge flag is set
-    pub fn is_purge(&self) -> bool {
-        self.purge
     }
 }

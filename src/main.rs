@@ -5,7 +5,7 @@ use args::Args;
 use clap::Parser;
 use dirs::home_dir;
 use std::fs::{self, rename};
-use trash::os_limited::{purge_all, restore_all};
+use trash::os_limited::{self, purge_all, restore_all};
 use trash::{TrashItem, delete};
 
 pub fn recover_from_trash(name: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -23,9 +23,7 @@ pub fn recover_from_trash(name: &str) -> Result<(), Box<dyn std::error::Error>> 
 }
 
 pub fn purge() {}
-//
-// pub fn tidy_trash_directory() {}
-//
+
 pub fn move_to_trash(path: &std::path::Path) -> std::result::Result<(), trash::Error> {
     delete(path)
 }
@@ -65,17 +63,19 @@ fn main() {
     let ignore = args.ignore;
 
     if args.is_purge() {
-        match trash::os_limited::list() {
-            Ok(items) => {
-                if let Err(e) = purge_all(items) {
-                    eprintln!("Error purging trash: {e}");
-                }
-            }
-            Err(e) => {
-                eprintln!("Error listing trash for purge: {e}");
-            }
+        if let Some(filename) = args.get_purge_name() {
+            trash::os_limited::purge_all(
+                os_limited::list()
+                    .unwrap()
+                    .into_iter()
+                    .filter(|x| x.name == filename),
+            )
+            .unwrap();
         }
-        return;
+    }
+
+    if args.is_recover_all() {
+        restore_all(os_limited::list().unwrap());
     }
 
     // listing the trash directory if the list command is used
