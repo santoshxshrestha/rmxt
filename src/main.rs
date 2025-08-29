@@ -18,14 +18,18 @@ pub fn recover_from_trash(name: &str) -> Result<(), Box<dyn std::error::Error>> 
     } else {
         println!("No items found to recover with the name '{name}'");
     }
-
     Ok(())
 }
 
-pub fn purge() {}
-
-pub fn move_to_trash(path: &std::path::Path) -> std::result::Result<(), trash::Error> {
-    delete(path)
+pub fn purge(name: &str) {
+    if let Err(e) = trash::os_limited::purge_all(
+        os_limited::list()
+            .unwrap()
+            .into_iter()
+            .filter(|x| x.name == name),
+    ) {
+        eprintln!("Error purging from trash: {e}");
+    };
 }
 
 pub fn list_trash() {
@@ -64,13 +68,7 @@ fn main() {
 
     if args.is_purge() {
         if let Some(filename) = args.get_purge_name() {
-            trash::os_limited::purge_all(
-                os_limited::list()
-                    .unwrap()
-                    .into_iter()
-                    .filter(|x| x.name == filename),
-            )
-            .unwrap();
+            purge(filename);
         }
     }
 
@@ -123,7 +121,7 @@ fn main() {
                 if let Err(e) = fs::remove_dir_all(&path) {
                     eprintln!("Error deleting with out moving to trash: {e}")
                 }
-            } else if let Err(e) = move_to_trash(&path) {
+            } else if let Err(e) = delete(&path) {
                 eprintln!("Error moving to trash: {e}");
             }
         }
