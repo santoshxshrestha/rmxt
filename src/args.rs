@@ -15,6 +15,10 @@ pub struct Args {
     #[arg(short = 'i', long, global = true)]
     pub ignore: bool,
 
+    /// Purge files from the trash directory
+    #[arg(short = 'p', long, global = true)]
+    pub purge: bool,
+
     /// Remove directories and their contents recursively
     #[arg(short = 'r', long, global = true)]
     pub recursive: bool,
@@ -61,5 +65,10 @@ impl Args {
     /// Check if remove command is active (default behavior when no subcommand)
     pub fn is_remove(&self) -> bool {
         self.command.is_none()
+    }
+
+    /// Check if purge flag is set
+    pub fn is_purge(&self) -> bool {
+        self.purge
     }
 }
