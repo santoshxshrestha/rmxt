@@ -41,13 +41,21 @@ pub enum Commands {
     /// Clean up the trash directory
     #[command(name = "tidy")]
     Tidy,
+
+    /// Recover files from the trash directory
+    #[command(name = "recover")]
+    Recover {
+        /// Name of the file to recover
+        #[arg(help = "Name of the file to recover from trash")]
+        name: String,
+    },
 }
 
 impl Args {
     /// Get the files to remove, handling the default case
     pub fn get_files(&self) -> Vec<PathBuf> {
         match &self.command {
-            Some(_) => Vec::new(),     // No files for list/tidy commands
+            Some(_) => Vec::new(),     // No files for list/tidy/recover commands
             None => self.file.clone(), // Use the default file argument
         }
     }
@@ -60,6 +68,19 @@ impl Args {
     /// Check if tidy command is active
     pub fn is_tidy(&self) -> bool {
         matches!(self.command, Some(Commands::Tidy))
+    }
+
+    /// Check if recover command is active
+    pub fn is_recover(&self) -> bool {
+        matches!(self.command, Some(Commands::Recover { .. }))
+    }
+
+    /// Get the name to recover (if recover command is active)
+    pub fn get_recover_name(&self) -> Option<&str> {
+        match &self.command {
+            Some(Commands::Recover { name }) => Some(name),
+            _ => None,
+        }
     }
 
     /// Check if remove command is active (default behavior when no subcommand)

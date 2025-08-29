@@ -5,8 +5,22 @@ use args::Args;
 use clap::Parser;
 use dirs::home_dir;
 use std::fs::{self, rename};
-use trash::os_limited::purge_all;
+use trash::os_limited::{purge_all, restore_all};
 use trash::{TrashItem, delete};
+
+pub fn recover_from_trash(name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let list = trash::os_limited::list()?;
+    let items_to_restore: Vec<_> = list.into_iter().filter(|item| item.name == name).collect();
+
+    if !items_to_restore.is_empty() {
+        restore_all(items_to_restore)?;
+        println!("Recovered '{name}'");
+    } else {
+        println!("No items found to recover with the name '{name}'");
+    }
+
+    Ok(())
+}
 
 pub fn purge() {}
 //
@@ -51,8 +65,15 @@ fn main() {
     let ignore = args.ignore;
 
     if args.is_purge() {
-        if let Err(e) = purge_all() {
-            eprintln!("Error purging trash: {e}");
+        match trash::os_limited::list() {
+            Ok(items) => {
+                if let Err(e) = purge_all(items) {
+                    eprintln!("Error purging trash: {e}");
+                }
+            }
+            Err(e) => {
+                eprintln!("Error listing trash for purge: {e}");
+            }
         }
         return;
     }
@@ -60,6 +81,16 @@ fn main() {
     // listing the trash directory if the list command is used
     if args.is_list() {
         list_trash();
+        return;
+    }
+
+    // recovering files from trash if the recover command is used
+    if args.is_recover() {
+        if let Some(name) = args.get_recover_name() {
+            if let Err(e) = recover_from_trash(name) {
+                eprintln!("Error recovering from trash: {e}");
+            }
+        }
         return;
     }
 
