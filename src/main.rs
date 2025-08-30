@@ -107,6 +107,20 @@ fn main() {
 
     // tidying the trash directory if the tidy command is used
     if args.is_tidy() {
+        println!(
+            "Warning: This will tidy the trash. \nAll the contents for the trash more then 30 days will me deleted permanently.\n  Do you want to proceed? (yes/no)"
+        );
+        let mut input = String::new();
+        std::io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+        let input = input.trim().to_lowercase();
+
+        if input != "yes" {
+            println!("Operation cancelled.");
+            return;
+        }
+
         if let Err(e) = tidy_trash() {
             eprintln!("Error tidying the trash: {e}");
         }
