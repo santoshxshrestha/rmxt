@@ -33,6 +33,26 @@ pub fn purge(name: &str) -> Result<(), trash::Error> {
     purge_all(content_to_remove)
 }
 
+pub fn list_specific_trash(seconds: i64) {
+    let entries = trash::os_limited::list().unwrap();
+    let now = Local::now().timestamp();
+    for entry in entries {
+        if now - entry.time_deleted < seconds {
+            let time_deleted = Local
+                .timestamp_opt(entry.time_deleted, 0)
+                .single()
+                .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+                .unwrap_or_else(|| "Unknown time".to_string());
+            println!(
+                "Name: {}\nOriginal Location: {}\nDeleted At: {}\n",
+                entry.name.to_string_lossy(),
+                entry.original_parent.to_string_lossy(),
+                time_deleted
+            );
+        }
+    }
+}
+
 pub fn list_trash() {
     match trash::os_limited::list() {
         Ok(trash) => {
@@ -107,8 +127,13 @@ fn main() {
 
     // listing the trash directory if the list command is used
     if args.is_list() {
-        list_trash();
-        return;
+        let seconds = args.get_time_list() * 86400;
+        if seconds == 0 {
+            list_trash();
+            return;
+        } else {
+            list_specific_trash(seconds);
+        }
     }
 
     // recovering files from trash if the recover command is used

@@ -32,7 +32,11 @@ pub struct Args {
 pub enum Commands {
     /// List files in the trash directory
     #[command(name = "list")]
-    List,
+    List {
+        /// Specify time from which to list files (in days)
+        #[arg(short = 't', long, global = false)]
+        time: Option<i64>,
+    },
 
     /// Clean up the trash directory by removing files older than 30 days
     #[command(name = "tidy")]
@@ -78,7 +82,7 @@ impl Args {
 
     /// Check if list command is active
     pub fn is_list(&self) -> bool {
-        matches!(self.command, Some(Commands::List))
+        matches!(self.command, Some(Commands::List { time }))
     }
 
     /// Check if tidy command is active
@@ -135,6 +139,15 @@ impl Args {
         match &self.command {
             // Default to 0 days (which will be evaluated to all the content)if not specified
             Some(Commands::RecoverAll { time }) => time.unwrap_or(0),
+            _ => 0, // Default to 0 days if not RecoverAll command
+        }
+    }
+
+    /// Get the time from which to list files for list command
+    pub fn get_time_list(&self) -> i64 {
+        match &self.command {
+            // Default to 0 days (which will be evaluated to all the content)if not specified
+            Some(Commands::List { time }) => time.unwrap_or(0),
             _ => 0, // Default to 0 days if not RecoverAll command
         }
     }
