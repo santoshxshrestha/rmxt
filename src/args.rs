@@ -104,7 +104,7 @@ impl Args {
     /// Get the name to purge (if purge command is active)
     pub fn get_purge_name(&self) -> Option<&str> {
         match &self.command {
-            Some(Commands::Recover { name }) => Some(name),
+            Some(Commands::Purge { name }) => Some(name),
             _ => None,
         }
     }

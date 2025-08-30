@@ -1,10 +1,11 @@
 #![allow(unused)]
-use chrono::{DateTime, Local, TimeZone};
+use chrono::{Local, TimeZone};
 mod args;
 use args::Args;
 use clap::Parser;
-use dirs::home_dir;
-use std::fs::{self, rename};
+use clap::builder::OsStr;
+use std::error::Error;
+use std::{fs, result};
 use trash::os_limited::{self, purge_all, restore_all};
 use trash::{TrashItem, delete};
 
@@ -21,15 +22,13 @@ pub fn recover_from_trash(name: &str) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-pub fn purge(name: &str) {
-    if let Err(e) = trash::os_limited::purge_all(
-        os_limited::list()
-            .unwrap()
-            .into_iter()
-            .filter(|x| x.name == name),
-    ) {
-        eprintln!("Error purging from trash: {e}");
-    };
+pub fn purge(name: &str) -> Result<(), trash::Error> {
+    let content_to_remove: Vec<TrashItem> = trash::os_limited::list()
+        .unwrap()
+        .into_iter()
+        .filter(|content| content.name == name)
+        .collect();
+    purge_all(content_to_remove)
 }
 
 pub fn list_trash() {
@@ -68,7 +67,9 @@ fn main() {
 
     if args.is_purge() {
         if let Some(filename) = args.get_purge_name() {
-            purge(filename);
+            if let Err(e) = purge(filename) {
+                eprintln!("Error removing the content from the bin: {e}")
+            }
         }
     }
 
