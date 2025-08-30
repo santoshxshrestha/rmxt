@@ -1,90 +1,57 @@
+#![allow(unused)]
+use chrono::{Local, TimeZone};
 mod args;
 use args::Args;
 use clap::Parser;
-use dirs::home_dir;
-use std::fs::{self, rename};
-use walkdir::WalkDir;
+use clap::builder::OsStr;
+use std::error::Error;
+use std::{fs, result};
+use trash::os_limited::{self, purge_all, restore_all};
+use trash::{TrashItem, delete};
 
-pub fn get_trash_directory() -> std::path::PathBuf {
-    match home_dir() {
-        Some(dir) => dir.join(".trash/"),
-        None => panic!("Could not find home directory"),
+pub fn recover_from_trash(name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let list = trash::os_limited::list()?;
+    let items_to_restore: Vec<_> = list.into_iter().filter(|item| item.name == name).collect();
+
+    if !items_to_restore.is_empty() {
+        restore_all(items_to_restore)?;
+        println!("Recovered '{name}'");
+    } else {
+        println!("No items found to recover with the name '{name}'");
     }
+    Ok(())
 }
 
-pub fn tidy_trash_directory() {
-    let trash = get_trash_directory();
-
-    match fs::metadata(&trash) {
-        Ok(metadata) => {
-            if metadata.is_dir() {
-                match fs::remove_dir_all(&trash) {
-                    Ok(_) => {
-                        println!("Trash directory cleaned.");
-
-                        if let Err(e) = fs::create_dir_all(&trash) {
-                            eprintln!("Error recreating trash directory: {e}");
-                        }
-                    }
-                    Err(e) => eprintln!("Error tidying trash directory: {e}"),
-                }
-            } else {
-                eprintln!("Path exists but is not a directory.");
-            }
-        }
-        Err(e) => {
-            println!("Trash directory does not exist or cannot be accessed: {e}");
-            println!("Creating trash directory at: {:?}", &trash);
-
-            if let Err(e) = fs::create_dir_all(&trash) {
-                eprintln!("Error creating trash directory: {e}");
-            }
-        }
-    }
-}
-
-pub fn move_to_trash(path: &std::path::Path) -> Result<(), std::io::Error> {
-    let trash = get_trash_directory();
-    let file_name = match path.file_name() {
-        Some(name) => name,
-        None => {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                "Invalid file name",
-            ));
-        }
-    };
-
-    let mut new_path = trash.join(file_name);
-    let mut count = 1;
-
-    while new_path.exists() {
-        let file_stem = path.file_stem().unwrap_or_default().to_string_lossy();
-        let extension = path
-            .extension()
-            .map(|ext| format!(".{}", ext.to_string_lossy()))
-            .unwrap_or_default();
-        new_path = trash.join(format!("{file_stem}-{count}{extension}"));
-        count += 1;
-    }
-    rename(path, new_path)
+pub fn purge(name: &str) -> Result<(), trash::Error> {
+    let content_to_remove: Vec<TrashItem> = trash::os_limited::list()
+        .unwrap()
+        .into_iter()
+        .filter(|content| content.name == name)
+        .collect();
+    purge_all(content_to_remove)
 }
 
 pub fn list_trash() {
-    let trash = get_trash_directory();
-    match WalkDir::new(&trash)
-        .into_iter()
-        .collect::<Result<Vec<_>, _>>()
-    {
-        Ok(entries) => {
-            for entry in entries {
-                match entry.path().to_str() {
-                    Some(path) => println!("{path}"),
-                    None => eprintln!("Error: Unable to convert path to string"),
-                }
+    match trash::os_limited::list() {
+        Ok(trash) => {
+            for entry in trash {
+                let time_deleted = Local
+                    .timestamp_opt(entry.time_deleted, 0)
+                    .single()
+                    .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+                    .unwrap_or_else(|| "Unknown time".to_string());
+
+                println!(
+                    "Name: {}\nOriginal Location: {}\nDeleted At: {}\n",
+                    entry.name.to_string_lossy(),
+                    entry.original_parent.to_string_lossy(),
+                    time_deleted
+                );
             }
         }
-        Err(e) => eprintln!("Error: Failed to read trash directory - {e}"),
+        Err(e) => {
+            eprintln!("Failed to list trash entries: {e}");
+        }
     }
 }
 
@@ -98,7 +65,17 @@ fn main() {
     let dir = args.dir;
     let ignore = args.ignore;
 
-    let trash = get_trash_directory();
+    if args.is_purge() {
+        if let Some(filename) = args.get_purge_name() {
+            if let Err(e) = purge(filename) {
+                eprintln!("Error removing the content from the bin: {e}")
+            }
+        }
+    }
+
+    if args.is_recover_all() {
+        restore_all(os_limited::list().unwrap());
+    }
 
     // listing the trash directory if the list command is used
     if args.is_list() {
@@ -106,19 +83,24 @@ fn main() {
         return;
     }
 
+    // recovering files from trash if the recover command is used
+    if args.is_recover() {
+        if let Some(name) = args.get_recover_name() {
+            if let Err(e) = recover_from_trash(name) {
+                eprintln!("Error recovering from trash: {e}");
+            }
+        }
+        return;
+    }
+
     // tidying the trash directory if the tidy command is used
     if args.is_tidy() {
-        tidy_trash_directory();
+        // tidy_trash_directory();
         return;
     }
 
     // Handle remove command (or default behavior when no subcommand)
     if args.is_remove() {
-        // creating the trash directory if it doesn't exist
-        if !fs::exists(&trash).unwrap() {
-            fs::create_dir(&trash).unwrap();
-        }
-
         // iterating over the paths
         for path in paths {
             if path.is_dir() && dir {
@@ -138,9 +120,9 @@ fn main() {
             if ignore {
                 // not need of seperate function for this
                 if let Err(e) = fs::remove_dir_all(&path) {
-                    eprintln!("Error deleting permanently: {e}")
+                    eprintln!("Error deleting with out moving to trash: {e}")
                 }
-            } else if let Err(e) = move_to_trash(&path) {
+            } else if let Err(e) = delete(&path) {
                 eprintln!("Error moving to trash: {e}");
             }
         }
