@@ -7,77 +7,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] -
+
+### Added
+
+- `tidy` command will now have have args to specify days
+- `recover-all` command will also have args to specify days from which content will be recovered
+
+### Changed
+
+- update README with new changes
+
+### Fixed
+
 ## [0.1.6] - 2025-08-30
 
 ### Added
+
 - `tidy` command to automatically delete files older than 30 days from trash
 - Warning prompts before permanently deleting files from trash
 - Enhanced recovery functionality with `recover` and `recover-all` commands
 - Better trash content listing with improved formatting
 
 ### Changed
+
 - Improved input argument handling and validation
 - Enhanced function organization and code structure
 - Updated documentation with comprehensive usage examples
 
 ### Fixed
+
 - Input argument parsing issues
 - Function call fixes for better reliability
 
 ## [0.1.5] - 2025-08-28
 
 ### Added
+
 - `list` command to display trash contents with details
 - `recover <name>` command to restore specific files from trash
 - `recover-all` command to restore all files from trash
 
 ### Changed
+
 - Better trash content organization and display
 - Improved documentation and tool information
 
 ### Fixed
+
 - Function separation and code cleanup
 - Logic improvements for ignore directory handling
 
 ## [0.1.4] - 2025-08-28
 
 ### Added
+
 - Comprehensive installation instructions via cargo
 - Enhanced README documentation
 
 ### Changed
+
 - Updated project metadata and tool information
 - Improved code organization and documentation
 
 ## [0.1.3] - 2025-08-27
 
 ### Added
+
 - `list` command to view contents in trash directory
 - Enhanced argument parsing and module organization
 
 ### Changed
+
 - Updated argument handling structure
 - Improved function organization
 
 ## [0.1.2] - 2025-08-27
 
 ### Added
+
 - Empty directory handling with `-d, --dir` flag
 - Enhanced error handling for home directory operations
 - Logic for handling empty directories without moving them to trash
 
 ### Changed
+
 - Improved directory handling logic
 - Updated README with better documentation
 - Enhanced CI/CD workflows for Rust projects
 
 ### Fixed
+
 - Home directory error handling
 - General error handling improvements
 
 ## [0.1.1] - 2025-08-26
 
 ### Added
+
 - Basic trash functionality with file removal to system trash
 - Recursive file removal with `-r, --recursive` flag
 - Force removal without prompts using `-f, --force` flag
@@ -87,15 +114,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project documentation and README
 
 ### Changed
+
 - Updated toolchain configuration
 - Optimized CI workflow
 
 ### Fixed
+
 - CI workflow typos and configuration issues
 
 ## [0.1.0] - 2025-08-25
 
 ### Added
+
 - Initial project setup with Cargo configuration
 - Core dependencies: chrono, clap, dirs, trash, walkdir
 - Basic argument parsing structure with clap
