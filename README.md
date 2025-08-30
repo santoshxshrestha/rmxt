@@ -58,6 +58,9 @@ rmxt -df empty_dir1/ empty_dir2/  # Directory + force
 # List all files in trash with details
 rmxt list
 
+# List all files in trash from the last 10 days
+rmxt list -t 10
+
 # Recover specific file from trash
 rmxt recover filename.txt
 
