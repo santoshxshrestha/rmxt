@@ -55,6 +55,18 @@ pub fn list_trash() {
     }
 }
 
+pub fn tidy_trash() -> Result<(), Box<dyn Error>> {
+    let entries = trash::os_limited::list()?;
+    let now = Local::now().timestamp();
+    for entry in entries {
+        if now - entry.time_deleted > 2592000 {
+            purge(&entry.name.to_string_lossy())?;
+            println!("Purged: {}", entry.name.to_string_lossy());
+        }
+    }
+    Ok(())
+}
+
 fn main() {
     // parsing the args
     let args = Args::parse();
@@ -95,7 +107,23 @@ fn main() {
 
     // tidying the trash directory if the tidy command is used
     if args.is_tidy() {
-        // tidy_trash_directory();
+        println!(
+            "Warning: This will tidy the trash. \nAll the contents for the trash more then 30 days will me deleted permanently.\n  Do you want to proceed? (yes/no)"
+        );
+        let mut input = String::new();
+        std::io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+        let input = input.trim().to_lowercase();
+
+        if input != "yes" {
+            println!("Operation cancelled.");
+            return;
+        }
+
+        if let Err(e) = tidy_trash() {
+            eprintln!("Error tidying the trash: {e}");
+        }
         return;
     }
 
