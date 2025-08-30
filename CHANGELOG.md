@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tidy` command will now have have args to specify days
 - `recover-all` command will also have args to specify days from which content will be recovered
 - `list` command will also have args to filter files based on days
+- added config for the formatter
 
 ### Changed
 
