@@ -12,19 +12,19 @@ pub struct Args {
     pub command: Option<Commands>,
 
     /// Don't put the file in trash, remove it permanently
-    #[arg(short = 'i', long, global = true)]
+    #[arg(short = 'i', long, global = false)]
     pub ignore: bool,
 
     /// Remove directories and their contents recursively
-    #[arg(short = 'r', long, global = true)]
+    #[arg(short = 'r', long, global = false)]
     pub recursive: bool,
 
     /// Force removal of files without prompt
-    #[arg(short = 'f', long, global = true)]
+    #[arg(short = 'f', long, global = false)]
     pub force: bool,
 
     /// Remove empty directories
-    #[arg(short = 'd', long, global = true)]
+    #[arg(short = 'd', long, global = false)]
     pub dir: bool,
 }
 
@@ -36,11 +36,19 @@ pub enum Commands {
 
     /// Clean up the trash directory by removing files older than 30 days
     #[command(name = "tidy")]
-    Tidy,
+    Tidy {
+        /// Specify time to live for tidy command (in days) (default is 30 days)
+        #[arg(short = 't', long, global = false)]
+        time: Option<i64>,
+    },
 
     /// recover all the content of the trash
     #[command(name = "recover-all")]
-    RecoverAll,
+    RecoverAll {
+        /// Specify time from which to recover files (in days)
+        #[arg(short = 't', long, global = false)]
+        time: Option<i64>,
+    },
 
     /// Recover files from the trash directory
     #[command(name = "recover")]
@@ -75,12 +83,12 @@ impl Args {
 
     /// Check if tidy command is active
     pub fn is_tidy(&self) -> bool {
-        matches!(self.command, Some(Commands::Tidy))
+        matches!(self.command, Some(Commands::Tidy { time }))
     }
 
     /// Check if RecoverAll command is active
     pub fn is_recover_all(&self) -> bool {
-        matches!(self.command, Some(Commands::RecoverAll))
+        matches!(self.command, Some(Commands::RecoverAll { time }))
     }
 
     /// Check if recover command is active
@@ -112,5 +120,22 @@ impl Args {
     /// Check if remove command is active (default behavior when no subcommand)
     pub fn is_remove(&self) -> bool {
         self.command.is_none()
+    }
+
+    /// Get the time to live for tidy command
+    pub fn get_time_tidy(&self) -> i64 {
+        match &self.command {
+            Some(Commands::Tidy { time }) => time.unwrap_or(30), // Default to 30 days if not specified
+            _ => 30, // Default to 30 days if not tidy command
+        }
+    }
+
+    /// Get the time from which to recover files for RecoverAll command
+    pub fn get_time_recover(&self) -> i64 {
+        match &self.command {
+            // Default to 0 days (which will be evaluated to all the content)if not specified
+            Some(Commands::RecoverAll { time }) => time.unwrap_or(0),
+            _ => 0, // Default to 0 days if not RecoverAll command
+        }
     }
 }

@@ -2,6 +2,8 @@
 use chrono::{Local, TimeZone};
 mod args;
 use args::Args;
+use args::Commands::RecoverAll;
+use args::Commands::Tidy;
 use clap::Parser;
 use clap::builder::OsStr;
 use std::error::Error;
@@ -55,11 +57,12 @@ pub fn list_trash() {
     }
 }
 
-pub fn tidy_trash() -> Result<(), Box<dyn Error>> {
+pub fn tidy_trash(days: i64) -> Result<(), Box<dyn Error>> {
+    let seconds: i64 = days * 86400;
     let entries = trash::os_limited::list()?;
     let now = Local::now().timestamp();
     for entry in entries {
-        if now - entry.time_deleted > 2592000 {
+        if now - entry.time_deleted > seconds {
             purge(&entry.name.to_string_lossy())?;
             println!("Purged: {}", entry.name.to_string_lossy());
         }
@@ -86,7 +89,20 @@ fn main() {
     }
 
     if args.is_recover_all() {
-        restore_all(os_limited::list().unwrap());
+        let seconds = args.get_time_recover() * 86400;
+        let mut content_to_recover = vec![];
+        if seconds == 0 {
+            restore_all(os_limited::list().unwrap());
+        } else {
+            let entries = trash::os_limited::list().unwrap();
+            let now = Local::now().timestamp();
+            for entry in entries {
+                if now - entry.time_deleted < seconds {
+                    content_to_recover.push(entry);
+                }
+            }
+            trash::os_limited::restore_all(content_to_recover);
+        }
     }
 
     // listing the trash directory if the list command is used
@@ -107,8 +123,9 @@ fn main() {
 
     // tidying the trash directory if the tidy command is used
     if args.is_tidy() {
+        let days = args.get_time_tidy();
         println!(
-            "Warning: This will tidy the trash. \nAll the contents for the trash more then 30 days will me deleted permanently.\n  Do you want to proceed? (yes/no)"
+            "Warning: This will tidy the trash. \nAll the contents for the trash more then {days} days will me deleted permanently.\n  Do you want to proceed? (yes/no)"
         );
         let mut input = String::new();
         std::io::stdin()
@@ -121,7 +138,7 @@ fn main() {
             return;
         }
 
-        if let Err(e) = tidy_trash() {
+        if let Err(e) = tidy_trash(days) {
             eprintln!("Error tidying the trash: {e}");
         }
         return;
