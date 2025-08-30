@@ -5,7 +5,7 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 ## Features
 
 - **Cross-platform trash support** - Works on Linux, macOS, and Windows
-- **File recovery** - Restore individual files or all files from trash
+- **File recovery** - Restore individual files, files from specific day to now or all files from trash
 - **Trash management** - List, purge, and automatically clean old files
 - **Shell integration** - Drop-in replacement for `rm` command
 - **Safety first** - Prevents accidental permanent deletion
@@ -14,11 +14,13 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 ## Installation
 
 ### From crates.io
+
 ```bash
 cargo install rmxt
 ```
 
 ### From Source
+
 ```bash
 git clone https://github.com/santoshxshrestha/rmxt
 cd rmxt
@@ -29,6 +31,7 @@ sudo cp target/release/rmxt /usr/local/bin/
 ## Commands & Usage
 
 ### Basic File Operations
+
 ```bash
 # Remove files (move to trash)
 rmxt file.txt
@@ -50,9 +53,13 @@ rmxt -df empty_dir1/ empty_dir2/  # Directory + force
 ```
 
 ### Trash Management
+
 ```bash
 # List all files in trash with details
 rmxt list
+
+# List all files in trash from the last 10 days
+rmxt list -t 10
 
 # Recover specific file from trash
 rmxt recover filename.txt
@@ -60,14 +67,21 @@ rmxt recover filename.txt
 # Recover all files from trash to their original locations
 rmxt recover-all
 
+# Recover all files from 20 days ago to now
+rmxt recover-all -t 20
+
 # Permanently delete specific file from trash
 rmxt purge filename.txt
 
 # Clean trash (remove files older than 30 days)
 rmxt tidy
+
+# Clean trash (remove files older then 20 days)
+rmxt tidy -t 20
 ```
 
 ### Permanent Deletion (Bypass Trash)
+
 ```bash
 # Permanently delete without using trash
 rmxt -i file.txt
@@ -84,25 +98,28 @@ rmxt -ifr directory/
 
 ## Command Reference
 
-### Global Flags
-| Flag | Long Form | Description |
-|------|-----------|-------------|
-| `-i` | `--ignore` | Permanently delete without using trash |
+### All Flags
+
+| Flag | Long Form     | Description                                 |
+| ---- | ------------- | ------------------------------------------- |
+| `-i` | `--ignore`    | Permanently delete without using trash      |
 | `-r` | `--recursive` | Remove directories and contents recursively |
-| `-f` | `--force` | Force removal without prompts |
-| `-d` | `--dir` | Remove empty directories |
-| `-h` | `--help` | Show help information |
-| `-V` | `--version` | Show version information |
+| `-f` | `--force`     | Force removal without prompts               |
+| `-d` | `--dir`       | Remove empty directories                    |
+| `-h` | `--help`      | Show help information                       |
+| `-V` | `--version`   | Show version information                    |
+| `-t` | `--time`      | Specify days for recovery or tidy commands  |
 
 ### Subcommands
-| Command | Description |
-|---------|-------------|
-| `list` | Show all files in trash with deletion timestamps and original paths |
-| `recover <name>` | Restore specific file from trash to its original location |
-| `recover-all` | Restore all files from trash to their original locations |
-| `purge <name>` | Permanently delete specific file from trash |
-| `tidy` | Permanently delete files older than 30 days from trash |
-| `help` | Show help message or help for specific subcommand |
+
+| Command          | Description                                                         |
+| ---------------- | ------------------------------------------------------------------- |
+| `list`           | Show all files in trash with deletion timestamps and original paths |
+| `recover <name>` | Restore specific file from trash to its original location           |
+| `recover-all`    | Restore all files from trash to their original locations            |
+| `purge <name>`   | Permanently delete specific file from trash                         |
+| `tidy`           | Permanently delete files older than 30 days from trash              |
+| `help`           | Show help message or help for specific subcommand                   |
 
 ## Trash Location
 
@@ -117,6 +134,7 @@ The exact location is managed by the system's trash implementation, ensuring com
 ## File Recovery
 
 ### Using Commands
+
 ```bash
 # List what's in trash
 rmxt list
@@ -134,6 +152,7 @@ rmxt recover-all
 ```
 
 ### Important Recovery Notes
+
 - Files are restored to their original locations when possible
 - Original file permissions and timestamps are preserved
 - If the original directory no longer exists, recovery may fail
@@ -144,24 +163,31 @@ rmxt recover-all
 Replace `rm` with `rmxt` by adding aliases to your shell configuration:
 
 ### Bash/Zsh
+
 Add to `~/.bashrc` or `~/.zshrc`:
+
 ```bash
 alias rm='rmxt'
 ```
 
 ### Fish Shell
+
 Add to `~/.config/fish/config.fish`:
+
 ```fish
 alias rm='rmxt'
 ```
 
 ### PowerShell (Windows)
+
 Add to your PowerShell profile:
+
 ```powershell
 Set-Alias rm rmxt
 ```
 
 After adding aliases, reload your shell:
+
 ```bash
 # Bash/Zsh
 source ~/.bashrc  # or ~/.zshrc
@@ -183,10 +209,12 @@ This project uses the following key dependencies:
 ## Development Status & Limitations
 
 ### Current Limitations
+
 - The implementation uses `unwrap()` for error handling, which may cause panics on unexpected errors
 - Limited graceful error recovery in some edge cases
 
 ### Planned Improvements
+
 - Replace `unwrap()` calls with proper error propagation using `Result` and `?` operator
 - Enhanced error messages and recovery mechanisms
 - Additional configuration options for trash behavior
@@ -195,6 +223,7 @@ This project uses the following key dependencies:
 ## Contributing
 
 Contributions are welcome! Please feel free to:
+
 - Report bugs and issues
 - Suggest new features
 - Submit pull requests
