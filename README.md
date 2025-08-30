@@ -1,212 +1,211 @@
 # rmxt
 
-`rmxt` is a safer, recoverable alternative to the traditional `rm` command. Instead of permanently deleting files, `rmxt` moves them to a trash directory, allowing you to recover them later if needed.
-
-> **Note:** We do not move empty directories to the trash directory because they serve no purpose and can be recreated easily if needed.
+A safer, recoverable alternative to the traditional `rm` command that moves files to the system trash instead of permanently deleting them.
 
 ## Features
 
-- Prevents accidental permanent deletion of files.
-- Moves deleted files to a designated trash directory.
-- List and manage files in the trash directory.
-- Clean up the trash directory when needed.
+- **Cross-platform trash support** - Works on Linux, macOS, and Windows
+- **File recovery** - Restore individual files or all files from trash
+- **Trash management** - List, purge, and automatically clean old files
+- **Shell integration** - Drop-in replacement for `rm` command
+- **Safety first** - Prevents accidental permanent deletion
+- **Flexible options** - Force, recursive, and bypass modes available
 
 ## Installation
 
-### Using Cargo Package Manager
-
-If you have Rust and Cargo installed, you can install `rmxt` directly from crates.io:
-
+### From crates.io
 ```bash
 cargo install rmxt
 ```
 
-### Build and Install from Source
-
-Alternatively, you can build and install from source:
-
+### From Source
 ```bash
+git clone https://github.com/santoshxshrestha/rmxt
+cd rmxt
 cargo build --release
 sudo cp target/release/rmxt /usr/local/bin/
 ```
 
-## Setting up Shell Aliases
+## Commands & Usage
 
-To use `rmxt` as a replacement for the traditional `rm` command, you can set up aliases in your shell configuration:
-
-### Bash
-Add this line to your `~/.bashrc` or `~/.bash_profile`:
+### Basic File Operations
 ```bash
-alias rm='rmxt'
-```
-
-### Zsh
-Add this line to your `~/.zshrc`:
-```zsh
-alias rm='rmxt'
-```
-
-### Fish
-Add this command to your Fish configuration:
-```fish
-alias rm='rmxt'
-```
-
-After adding the alias, reload your shell configuration:
-- Bash/Zsh: `source ~/.bashrc` (or `~/.zshrc`)
-- Fish: `source ~/.config/fish/config.fish`
-
-## Usage Examples
-
-### Basic File Removal
-```bash
-# Remove a single file
+# Remove files (move to trash)
 rmxt file.txt
-
-# Remove multiple files
 rmxt file1.txt file2.txt file3.txt
-
-# Remove files with patterns (if your shell supports globbing)
 rmxt *.log
-```
 
-### Directory Operations
-```bash
-# Remove a directory and its contents recursively
+# Remove directories recursively
 rmxt -r directory/
 
-# Remove an empty directory
+# Remove empty directories
 rmxt -d empty_directory/
 
-# Force remove without prompts
+# Force removal without prompts
 rmxt -f file.txt
+
+# Combined options
+rmxt -rf directory/          # Recursive + force
+rmxt -df empty_dir1/ empty_dir2/  # Directory + force
 ```
 
-### Managing the Trash Directory
+### Trash Management
 ```bash
-# List all files in the trash
+# List all files in trash with details
 rmxt list
 
-# Clean up the trash directory (permanently delete all trashed files)
+# Recover specific file from trash
+rmxt recover filename.txt
+
+# Recover all files from trash to their original locations
+rmxt recover-all
+
+# Permanently delete specific file from trash
+rmxt purge filename.txt
+
+# Clean trash (remove files older than 30 days)
 rmxt tidy
 ```
 
 ### Permanent Deletion (Bypass Trash)
 ```bash
-# Permanently delete a file (bypass trash directory)
+# Permanently delete without using trash
 rmxt -i file.txt
-
-# Permanently delete multiple files
 rmxt -i file1.txt file2.txt
 
-# Permanently delete a directory and its contents
+# Permanently delete directory
 rmxt -ir directory/
-```
 
-> **⚠️ Warning:** When using the `-i, --ignore` option, files are permanently deleted and cannot be recovered from the trash directory. Use with caution!
-
-### Combined Options
-```bash
-# Recursively and forcefully remove a directory
-rmxt -rf directory/
-
-# Remove empty directories with force
-rmxt -df empty_dir1/ empty_dir2/
-
-# Permanently and forcefully remove a directory
+# Permanently delete with force
 rmxt -ifr directory/
 ```
 
-## Trash Directory Location
+> **⚠️ Warning:** The `-i, --ignore` flag permanently deletes files without moving them to trash. Use with caution!
 
-### Default Location
-The trash directory is located at:
-```
-~/.trash/
-```
-Where `~` represents your home directory (e.g., `/home/username/.trash/` on Linux, `/Users/username/.trash/` on macOS).
+## Command Reference
 
-### Directory Structure
-```
-~/.trash/
-├── file1.txt
-├── document.pdf
-├── folder1/
-│   ├── nested_file.txt
-│   └── subfolder/
-└── script.sh
-```
+### Global Flags
+| Flag | Long Form | Description |
+|------|-----------|-------------|
+| `-i` | `--ignore` | Permanently delete without using trash |
+| `-r` | `--recursive` | Remove directories and contents recursively |
+| `-f` | `--force` | Force removal without prompts |
+| `-d` | `--dir` | Remove empty directories |
+| `-h` | `--help` | Show help information |
+| `-V` | `--version` | Show version information |
 
-## Manual Recovery
+### Subcommands
+| Command | Description |
+|---------|-------------|
+| `list` | Show all files in trash with deletion timestamps and original paths |
+| `recover <name>` | Restore specific file from trash to its original location |
+| `recover-all` | Restore all files from trash to their original locations |
+| `purge <name>` | Permanently delete specific file from trash |
+| `tidy` | Permanently delete files older than 30 days from trash |
+| `help` | Show help message or help for specific subcommand |
 
-### Recovering Individual Files
-You can manually recover files from the trash directory:
+## Trash Location
 
+Files are moved to the system trash directory using platform-native locations:
+
+- **Linux**: `~/.local/share/Trash/files/`
+- **macOS**: `~/.Trash/`
+- **Windows**: Recycle Bin
+
+The exact location is managed by the system's trash implementation, ensuring compatibility with your desktop environment's trash functionality.
+
+## File Recovery
+
+### Using Commands
 ```bash
-# Navigate to the trash directory
-cd ~/.trash/
+# List what's in trash
+rmxt list
 
-# List all trashed files
-ls -la
+# Sample output:
+# Name: document.pdf
+# Original Location: /home/user/Documents
+# Deleted At: 2024-01-15 14:30:22
 
-# Move a file back to your desired location
-mv file.txt ~/Documents/
+# Recover specific file
+rmxt recover document.pdf
 
-# Move a directory back
-mv folder1/ ~/Projects/
-```
-
-### Recovering with Original Structure
-Since `rmxt` moves files directly to `~/.trash/`, files lose their original directory structure. To help identify files:
-
-```bash
-# List files with details (timestamps can help identify recent deletions)
-ls -lat ~/.trash/
-
-# Find files by name
-find ~/.trash/ -name "*.txt" -type f
-
-# Find directories
-find ~/.trash/ -type d
+# Recover all files
+rmxt recover-all
 ```
 
 ### Important Recovery Notes
-- Files in the trash retain their original names but lose their directory path
-- If multiple files with the same name are deleted, `rmxt` prevents overwriting by automatically appending a number to the filename (e.g., `file.txt`, `file.txt.1`, `file.txt.2`)
-- Use `rmxt list` to see all trashed items
-- Recovered files will have their original permissions intact
+- Files are restored to their original locations when possible
+- Original file permissions and timestamps are preserved
+- If the original directory no longer exists, recovery may fail
+- Use `rmxt list` to see available files and their original paths
 
-## Command Line Options
+## Shell Integration
 
-| Option | Description |
-|--------|-------------|
-| `-i, --ignore` | Don't put the file in trash, remove it permanently |
-| `-r, --recursive` | Remove directories and their contents recursively |
-| `-f, --force` | Force removal without prompts |
-| `-d, --dir` | Remove empty directories |
-| `-h, --help` | Print help information |
-| `-V, --version` | Print version information |
+Replace `rm` with `rmxt` by adding aliases to your shell configuration:
 
-### Subcommands
+### Bash/Zsh
+Add to `~/.bashrc` or `~/.zshrc`:
+```bash
+alias rm='rmxt'
+```
 
-| Command | Description |
-|---------|-------------|
-| `list` | List all files in the trash directory |
-| `tidy` | Permanently delete all files in the trash directory |
-| `help` | Print help message or help for specific subcommand |
+### Fish Shell
+Add to `~/.config/fish/config.fish`:
+```fish
+alias rm='rmxt'
+```
 
-## Warning
+### PowerShell (Windows)
+Add to your PowerShell profile:
+```powershell
+Set-Alias rm rmxt
+```
 
-The current implementation of `rmxt` relies heavily on the use of `unwrap()` for error handling. This means:
+After adding aliases, reload your shell:
+```bash
+# Bash/Zsh
+source ~/.bashrc  # or ~/.zshrc
 
-- If any operation (e.g., file I/O, directory creation) fails, the program will panic and terminate abruptly.
-- There is no graceful recovery or fallback mechanism in place for unexpected errors.
+# Fish
+source ~/.config/fish/config.fish
+```
 
-However, this is a work in progress, and the logic will be refactored to convert the code into a safer implementation. Future updates will:
+## Dependencies
 
-- Replace `unwrap()` with proper error propagation using `Result` and the `?` operator.
-- Introduce robust error handling to ensure the program can recover gracefully from unexpected failures.
+This project uses the following key dependencies:
+
+- **[chrono](https://crates.io/crates/chrono)** - Date and time handling for trash cleanup
+- **[clap](https://crates.io/crates/clap)** - Command-line argument parsing with derive macros
+- **[trash](https://crates.io/crates/trash)** - Cross-platform system trash integration
+- **[walkdir](https://crates.io/crates/walkdir)** - Recursive directory traversal
+- **[dirs](https://crates.io/crates/dirs)** - Platform-specific directory utilities
+
+## Development Status & Limitations
+
+### Current Limitations
+- The implementation uses `unwrap()` for error handling, which may cause panics on unexpected errors
+- Limited graceful error recovery in some edge cases
+
+### Planned Improvements
+- Replace `unwrap()` calls with proper error propagation using `Result` and `?` operator
+- Enhanced error messages and recovery mechanisms
+- Additional configuration options for trash behavior
+- More robust file conflict resolution
+
+## Contributing
+
+Contributions are welcome! Please feel free to:
+- Report bugs and issues
+- Suggest new features
+- Submit pull requests
+- Improve documentation
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Repository
+
+- **Homepage**: https://github.com/santoshxshrestha/rmxt
+- **Documentation**: https://github.com/santoshxshrestha/rmxt#readme
+- **Issues**: https://github.com/santoshxshrestha/rmxt/issues
