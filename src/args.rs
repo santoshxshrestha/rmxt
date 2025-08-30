@@ -34,7 +34,7 @@ pub enum Commands {
     #[command(name = "list")]
     List,
 
-    /// Clean up the trash directory
+    /// Clean up the trash directory by removing files older than 30 days
     #[command(name = "tidy")]
     Tidy,
 
