@@ -11,8 +11,8 @@ use std::{fs, result};
 use trash::os_limited::{self, purge_all, restore_all};
 use trash::{TrashItem, delete};
 
-pub fn list_specific_trash(seconds: i64) {
-    let entries = trash::os_limited::list().unwrap();
+pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
+    let entries = trash::os_limited::list()?;
     let now = Local::now().timestamp();
     for entry in entries {
         if now - entry.time_deleted < seconds {
@@ -29,6 +29,7 @@ pub fn list_specific_trash(seconds: i64) {
             );
         }
     }
+    Ok(())
 }
 
 pub fn list_trash() {
