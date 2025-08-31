@@ -81,12 +81,16 @@ fn main() {
 
     if args.is_purge() {
         let names = args.get_purge_name();
-        let content_to_purge = trash::os_limited::list()
-            .unwrap()
-            .into_iter()
-            .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
-            .collect::<Vec<TrashItem>>();
-
+        let content_to_purge = match trash::os_limited::list() {
+            Ok(item) => item
+                .into_iter()
+                .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
+                .collect::<Vec<TrashItem>>(),
+            Err(e) => {
+                eprintln!("Error listing items: {e} ");
+                return;
+            }
+        };
         if !content_to_purge.is_empty() {
             if let Err(e) = trash::os_limited::purge_all(content_to_purge) {
                 eprintln!("Error purging items: {e}");
