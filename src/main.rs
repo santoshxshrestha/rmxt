@@ -11,28 +11,6 @@ use std::{fs, result};
 use trash::os_limited::{self, purge_all, restore_all};
 use trash::{TrashItem, delete};
 
-pub fn recover_from_trash(name: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let list = trash::os_limited::list()?;
-    let items_to_restore: Vec<_> = list.into_iter().filter(|item| item.name == name).collect();
-
-    if !items_to_restore.is_empty() {
-        restore_all(items_to_restore)?;
-        println!("Recovered '{name}'");
-    } else {
-        println!("No items found to recover with the name '{name}'");
-    }
-    Ok(())
-}
-
-pub fn purge(name: &str) -> Result<(), trash::Error> {
-    let content_to_remove: Vec<TrashItem> = trash::os_limited::list()
-        .unwrap()
-        .into_iter()
-        .filter(|content| content.name == name)
-        .collect();
-    purge_all(content_to_remove)
-}
-
 pub fn list_specific_trash(seconds: i64) {
     let entries = trash::os_limited::list().unwrap();
     let now = Local::now().timestamp();
@@ -77,17 +55,22 @@ pub fn list_trash() {
     }
 }
 
-pub fn tidy_trash(days: i64) -> Result<(), Box<dyn Error>> {
+pub fn tidy_trash(days: i64) {
     let seconds: i64 = days * 86400;
-    let entries = trash::os_limited::list()?;
     let now = Local::now().timestamp();
-    for entry in entries {
-        if now - entry.time_deleted > seconds {
-            purge(&entry.name.to_string_lossy())?;
-            println!("Purged: {}", entry.name.to_string_lossy());
+    let content_to_purge = trash::os_limited::list()
+        .unwrap()
+        .into_iter()
+        .filter(|item| item.time_deleted < seconds)
+        .collect::<Vec<TrashItem>>();
+
+    if !content_to_purge.is_empty() {
+        if let Err(e) = trash::os_limited::purge_all(content_to_purge) {
+            eprintln!("Error purging items: {e}");
+        } else {
+            println!("No items found to purge older than {days} days");
         }
     }
-    Ok(())
 }
 
 fn main() {
@@ -174,9 +157,7 @@ fn main() {
             return;
         }
 
-        if let Err(e) = tidy_trash(days) {
-            eprintln!("Error tidying the trash: {e}");
-        }
+        tidy_trash(days);
         return;
     }
 
