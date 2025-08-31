@@ -176,7 +176,9 @@ fn main() {
             return;
         }
 
-        tidy_trash(days);
+        if let Err(e) = tidy_trash(days) {
+            eprintln!("Error tidying trash: {e}");
+        }
         return;
     }
 
