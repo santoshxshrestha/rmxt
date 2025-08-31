@@ -101,11 +101,13 @@ fn main() {
     let ignore = args.ignore;
 
     if args.is_purge() {
-        if let Some(filename) = args.get_purge_name() {
-            if let Err(e) = purge(filename) {
-                eprintln!("Error removing the content from the bin: {e}")
-            }
-        }
+        let files_to_purge = args.get_purge_name();
+        println!("got the files to purte{:#?}", files_to_purge);
+        // if let Some(filename) = args.get_purge_name() {
+        //     if let Err(e) = purge(filename) {
+        //         eprintln!("Error removing the content from the bin: {e}")
+        //     }
+        // }
     }
 
     if args.is_recover_all() {

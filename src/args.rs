@@ -67,7 +67,7 @@ pub enum Commands {
     Purge {
         /// Purge files from the trash directory
         #[arg(help = "Name of the file to purge")]
-        name: String,
+        name: Vec<String>,
     },
 }
 
@@ -114,10 +114,10 @@ impl Args {
     }
 
     /// Get the name to purge (if purge command is active)
-    pub fn get_purge_name(&self) -> Option<&str> {
+    pub fn get_purge_name(&self) -> Vec<String> {
         match &self.command {
-            Some(Commands::Purge { name }) => Some(name),
-            _ => None,
+            Some(Commands::Purge { name }) => name.clone(),
+            _ => Vec::new(),
         }
     }
 
