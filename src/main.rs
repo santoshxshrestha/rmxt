@@ -1,18 +1,13 @@
-#![allow(unused)]
 use chrono::{Local, TimeZone};
 mod args;
 use args::Args;
-use args::Commands::RecoverAll;
-use args::Commands::Tidy;
 use clap::Parser;
-use clap::builder::OsStr;
-use std::error::Error;
-use std::{fs, result};
-use trash::os_limited::{self, purge_all, restore_all};
+use std::fs;
+use trash::os_limited;
 use trash::{TrashItem, delete};
 
 pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
-    let entries = trash::os_limited::list()?;
+    let entries = os_limited::list()?;
     let now = Local::now().timestamp();
     for entry in entries {
         if now - entry.time_deleted < seconds {
@@ -33,7 +28,7 @@ pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
 }
 
 pub fn list_trash() {
-    match trash::os_limited::list() {
+    match os_limited::list() {
         Ok(trash) => {
             for entry in trash {
                 let time_deleted = Local
@@ -56,22 +51,21 @@ pub fn list_trash() {
     }
 }
 
-pub fn tidy_trash(days: i64) {
+pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     let seconds: i64 = days * 86400;
-    let now = Local::now().timestamp();
-    let content_to_purge = trash::os_limited::list()
-        .unwrap()
+    let content_to_purge = trash::os_limited::list()?
         .into_iter()
         .filter(|item| item.time_deleted < seconds)
         .collect::<Vec<TrashItem>>();
 
     if !content_to_purge.is_empty() {
-        if let Err(e) = trash::os_limited::purge_all(content_to_purge) {
+        if let Err(e) = os_limited::purge_all(content_to_purge) {
             eprintln!("Error purging items: {e}");
         } else {
             println!("No items found to purge older than {days} days");
         }
     }
+    Ok(())
 }
 
 fn main() {
