@@ -113,7 +113,9 @@ fn main() {
                     content_to_recover.push(entry);
                 }
             }
-            trash::os_limited::restore_all(content_to_recover);
+            if let Err(e) = trash::os_limited::restore_all(content_to_recover) {
+                eprintln!("Error recovering items: {e}");
+            }
         }
     }
 
