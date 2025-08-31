@@ -148,11 +148,11 @@ fn main() {
             .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
             .collect::<Vec<TrashItem>>();
         if !content_to_recover.is_empty() {
-            println!("No items found to recover with such names");
-        } else {
             if let Err(e) = trash::os_limited::restore_all(content_to_recover) {
                 eprintln!("Error recovering items: {e}");
             }
+        } else {
+            println!("No items found to recover with such names");
         }
         return;
     }
