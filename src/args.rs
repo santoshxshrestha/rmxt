@@ -59,7 +59,7 @@ pub enum Commands {
     Recover {
         /// Name of the file to recover
         #[arg(help = "Name of the file to recover from trash")]
-        name: String,
+        name: Vec<String>,
     },
 
     /// Purge files from the trash directory
@@ -67,7 +67,7 @@ pub enum Commands {
     Purge {
         /// Purge files from the trash directory
         #[arg(help = "Name of the file to purge")]
-        name: String,
+        name: Vec<String>,
     },
 }
 
@@ -101,10 +101,10 @@ impl Args {
     }
 
     /// Get the name to recover (if recover command is active)
-    pub fn get_recover_name(&self) -> Option<&str> {
+    pub fn get_recover_name(&self) -> Vec<String> {
         match &self.command {
-            Some(Commands::Recover { name }) => Some(name),
-            _ => None,
+            Some(Commands::Recover { name }) => name.clone(),
+            _ => Vec::new(),
         }
     }
 
@@ -114,10 +114,10 @@ impl Args {
     }
 
     /// Get the name to purge (if purge command is active)
-    pub fn get_purge_name(&self) -> Option<&str> {
+    pub fn get_purge_name(&self) -> Vec<String> {
         match &self.command {
-            Some(Commands::Purge { name }) => Some(name),
-            _ => None,
+            Some(Commands::Purge { name }) => name.clone(),
+            _ => Vec::new(),
         }
     }
 
