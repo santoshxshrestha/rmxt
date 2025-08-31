@@ -1,4 +1,5 @@
 use chrono::{Local, TimeZone};
+use trash::os_limited::restore_all;
 mod args;
 use args::Args;
 use clap::Parser;
@@ -99,9 +100,21 @@ fn main() {
         let seconds = args.get_time_recover() * 86400;
         let mut content_to_recover = vec![];
         if seconds == 0 {
-            restore_all(os_limited::list().unwrap());
+            match os_limited::list() {
+                Ok(items) => {
+                    if let Err(e) = restore_all(items) {
+                        eprintln!("Error recovering items: {e}");
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Error listing items: {e}");
+                }
+            }
         } else {
-            let entries = trash::os_limited::list().unwrap();
+            let Ok(entries) = os_limited::list() else {
+                eprintln!("Error listing items ");
+                return;
+            };
             let now = Local::now().timestamp();
             for entry in entries {
                 if now - entry.time_deleted < seconds {
@@ -126,7 +139,6 @@ fn main() {
             }
             return;
         }
-        return;
     }
 
     // recovering files from trash if the recover command is used
