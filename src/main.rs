@@ -148,11 +148,17 @@ fn main() {
     // recovering files from trash if the recover command is used
     if args.is_recover() {
         let names = args.get_recover_name();
-        let content_to_recover = trash::os_limited::list()
-            .unwrap()
-            .into_iter()
-            .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
-            .collect::<Vec<TrashItem>>();
+        let content_to_recover = match os_limited::list() {
+            Ok(item) => item
+                .into_iter()
+                .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
+                .collect::<Vec<TrashItem>>(),
+            Err(e) => {
+                eprintln!("Error listing items: {e} ");
+                return;
+            }
+        };
+
         if !content_to_recover.is_empty() {
             if let Err(e) = trash::os_limited::restore_all(content_to_recover) {
                 eprintln!("Error recovering items: {e}");
