@@ -102,12 +102,11 @@ fn main() {
 
     if args.is_purge() {
         let files_to_purge = args.get_purge_name();
-        println!("got the files to purte{:#?}", files_to_purge);
-        // if let Some(filename) = args.get_purge_name() {
-        //     if let Err(e) = purge(filename) {
-        //         eprintln!("Error removing the content from the bin: {e}")
-        //     }
-        // }
+        for file in files_to_purge {
+            if let Err(e) = purge(&file) {
+                eprintln!("Error purging {file}: {e}");
+            }
+        }
     }
 
     if args.is_recover_all() {
@@ -135,14 +134,17 @@ fn main() {
             return;
         } else {
             list_specific_trash(seconds);
+            return;
         }
+        return;
     }
 
     // recovering files from trash if the recover command is used
     if args.is_recover() {
-        if let Some(name) = args.get_recover_name() {
-            if let Err(e) = recover_from_trash(name) {
-                eprintln!("Error recovering from trash: {e}");
+        let contents_to_recover = args.get_recover_name();
+        for content in contents_to_recover {
+            if let Err(e) = recover_from_trash(&content) {
+                eprintln!("Error recovering {content}: {e}");
             }
         }
         return;
