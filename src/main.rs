@@ -127,7 +127,9 @@ fn main() {
             list_trash();
             return;
         } else {
-            list_specific_trash(seconds);
+            if let Err(e) = list_specific_trash(seconds) {
+                eprintln!("Failed to list trash entries: {e}");
+            }
             return;
         }
         return;
