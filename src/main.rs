@@ -84,11 +84,19 @@ fn main() {
     let ignore = args.ignore;
 
     if args.is_purge() {
-        let files_to_purge = args.get_purge_name();
-        for file in files_to_purge {
-            if let Err(e) = purge(&file) {
-                eprintln!("Error purging {file}: {e}");
+        let names = args.get_purge_name();
+        let content_to_purge = trash::os_limited::list()
+            .unwrap()
+            .into_iter()
+            .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
+            .collect::<Vec<TrashItem>>();
+
+        if !content_to_purge.is_empty() {
+            if let Err(e) = trash::os_limited::purge_all(content_to_purge) {
+                eprintln!("Error purging items: {e}");
             }
+        } else {
+            println!("No items found to purge with such names");
         }
     }
 
