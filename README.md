@@ -25,6 +25,14 @@ For comprehensive guides and detailed examples, see our modular documentation:
 
 ## Quick Start
 
+### Installation Script (Recommended)
+
+The fastest way to install rmxt:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/install.sh | bash
+```
+
 ### Basic Installation
 
 ```bash

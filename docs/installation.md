@@ -4,7 +4,48 @@ This guide provides detailed installation instructions for `rmxt` across differe
 
 ## Quick Install
 
-### From crates.io (Recommended)
+### Using Installation Script (Recommended)
+
+The fastest way to get `rmxt` up and running is using our automated installation script:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/install.sh | bash
+```
+
+Or download and inspect the script first:
+
+```bash
+# Download the script
+curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/install.sh -o install.sh
+
+# Make it executable
+chmod +x install.sh
+
+# Run the installation
+./install.sh
+```
+
+**What the script does:**
+- ✅ Checks for Rust toolchain (installs if missing)
+- ✅ Clones the repository to `~/rmxt`
+- ✅ Builds the project in release mode
+- ✅ Installs binary to `/usr/local/bin/rmxt`
+- ✅ Verifies the installation works
+
+**Script options:**
+```bash
+./install.sh --help              # Show all options
+./install.sh --dry-run           # Preview what would be done
+./install.sh --repo=<URL>        # Install from custom repository
+```
+
+**Environment variables:**
+```bash
+export RMXT_REPO_URL="https://github.com/yourfork/rmxt.git"
+./install.sh                     # Uses custom repository
+```
+
+### From crates.io
 
 The easiest way to install `rmxt` is using Cargo:
 
@@ -229,9 +270,85 @@ After successful installation:
 2. Read the [usage guide](usage.md) for comprehensive examples
 3. Explore [advanced features](advanced-features.md) for power user functionality
 
+## Uninstalling rmxt
+
+### Using Uninstallation Script
+
+If you installed `rmxt` using our installation script, you can easily remove it:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/uninstall.sh | bash
+```
+
+Or download and run locally:
+
+```bash
+# Download the uninstall script
+curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/uninstall.sh -o uninstall.sh
+
+# Make it executable
+chmod +x uninstall.sh
+
+# Run the uninstallation
+./uninstall.sh
+```
+
+**Script options:**
+```bash
+./uninstall.sh --help           # Show help
+./uninstall.sh --dry-run        # Preview what would be removed
+```
+
+**What the script removes:**
+- 🗑️ Binary from `/usr/local/bin/rmxt`
+- 🗑️ Repository directory at `~/rmxt`
+- 🗑️ All associated files and build artifacts
+
+### Manual Uninstallation
+
+#### If installed via Cargo
+
+```bash
+cargo uninstall rmxt
+```
+
+#### If installed manually
+
+```bash
+# Remove the binary (adjust path as needed)
+sudo rm -f /usr/local/bin/rmxt
+# or
+rm -f ~/.local/bin/rmxt
+
+# Remove any downloaded source (if applicable)
+rm -rf ~/rmxt
+```
+
+#### Remove Configuration (Optional)
+
+If you want to completely remove all traces including trash data:
+
+```bash
+# Remove rmxt's trash directory (Linux/macOS)
+rm -rf ~/.local/share/rmxt
+
+# Remove any shell integration (if added)
+# Edit your ~/.bashrc, ~/.zshrc, etc. to remove rmxt aliases
+```
+
+**Note:** Removing the trash directory will permanently delete all files currently in rmxt's trash. Make sure to recover any important files first using `rmxt list` and `rmxt recover`.
+
 ## Updating
 
 To update to the latest version:
+
+### If installed via script
+```bash
+# Re-run the installation script
+curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/install.sh | bash
+```
+
+### If installed via Cargo
 
 ```bash
 cargo install rmxt --force
