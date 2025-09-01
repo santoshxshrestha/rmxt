@@ -55,6 +55,7 @@ pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
 }
 
 pub fn list_trash() {
+    let mut list: Vec<List> = vec![];
     match os_limited::list() {
         Ok(trash) => {
             for entry in trash {
@@ -64,13 +65,16 @@ pub fn list_trash() {
                     .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
                     .unwrap_or_else(|| "Unknown time".to_string());
 
-                println!(
-                    "Name: {}\nOriginal Location: {}\nDeleted At: {}\n",
-                    entry.name.to_string_lossy(),
-                    entry.original_parent.to_string_lossy(),
-                    time_deleted
-                );
+                list.push(List::new(
+                    entry.name.to_string_lossy().to_string(),
+                    entry.original_path().to_string_lossy().to_string(),
+                    time_deleted,
+                ))
             }
+            let mut table = Table::new(&list);
+            table.with(Style::modern());
+            table.modify(Columns::first(), Alignment::right());
+            println!("{table}");
         }
         Err(e) => {
             eprintln!("Failed to list trash entries: {e}");
