@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.7] - 2025-08-31
+## [0.1.7] - 2025-09-01
 
 ### Added
 
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `recover-all` command will also have args to specify days from which content will be recovered
 - `list` command will also have args to filter files based on days
 - added config for the formatter
+- `list` command will now print the content in trash in a table format
 
 ### Changed
 
@@ -22,10 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improved code structure and organization
 - `recover` command will now can take multiple file names as args
 - `purge` command will now can take multiple file names as args
+- improved error handling and messages
+- errors will now be printed in red color for better visibility
 
 ### Fixed
 
 - minor bug fixes and improvements
+- better error handling with results and if lets
 
 ## [0.1.6] - 2025-08-30
 
