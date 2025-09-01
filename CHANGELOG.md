@@ -7,31 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2025-09-01
+
+### Added
+
+- Installation and uninstallation scripts for easier setup and removal
+- Comprehensive documentation in `docs/` directory
+- Advanced usage documentation
+- Install and usage guides
+
+### Changed
+
+- Updated README with new changes and better documentation structure
+- Improved code linting and formatting
+- Enhanced documentation organization
+
+### Fixed
+
+- Code linting issues
+- Documentation formatting and structure
+
 ## [0.1.7] - 2025-09-01
 
 ### Added
 
-- `tidy` command will now have have args to specify days
-- `recover-all` command will also have args to specify days from which content will be recovered
-- `list` command will also have args to filter files based on days
-- added config for the formatter
-- `list` command will now print the content in trash in a table format
-- installation and uninstallation scripts for easier setup and removal
+- `tidy` command now has args to specify days
+- `recover-all` command now has args to specify days from which content will be recovered
+- `list` command now has args to filter files based on days
+- Config for the formatter (tabled crate)
+- `list` command now prints the content in trash in a table format
+- Red colored error messages for better visibility
 
 ### Changed
 
-- update README with new changes
-- improved code structure and organization
-- `recover` command will now can take multiple file names as args
-- `purge` command will now can take multiple file names as args
-- improved error handling and messages
-- errors will now be printed in red color for better visibility
+- Updated README with new changes
+- Improved code structure and organization
+- `recover` command can now take multiple file names as args
+- `purge` command can now take multiple file names as args
+- Improved error handling and messages throughout the codebase
 
 ### Fixed
 
-- modular documentation
-- minor bug fixes and improvements
-- better error handling with results and if lets
+- Better error handling with Results and if let statements
+- Minor bug fixes and improvements
+- Function refactoring for better efficiency
 
 ## [0.1.6] - 2025-08-30
 
@@ -147,7 +166,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MIT License
 - Initial README and project documentation
 
-[Unreleased]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.7...v0.1.8
+[0.1.7]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.3...v0.1.4

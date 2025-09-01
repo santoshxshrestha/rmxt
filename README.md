@@ -13,7 +13,7 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 - **Enhanced output** - Colored error messages and formatted table display for trash listings
 - **Time-based operations** - Filter and manage files based on deletion timestamps
 
-## 📚 Documentation
+## Documentation
 
 For comprehensive guides and detailed examples, see our modular documentation:
 
@@ -144,7 +144,7 @@ cargo test
 cargo install --path .
 ```
 
-### Recent Updates (v0.1.7)
+### Recent Updates (v0.1.8)
 
 - Enhanced user interface with colored error messages
 - Improved output formatting with clean table display
