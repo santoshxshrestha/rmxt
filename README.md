@@ -13,94 +13,59 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 - **Enhanced output** - Colored error messages and formatted table display for trash listings
 - **Time-based operations** - Filter and manage files based on deletion timestamps
 
-## Installation
+## 📚 Documentation
 
-### From crates.io
+For comprehensive guides and detailed examples, see our modular documentation:
+
+- **[Installation Guide](docs/installation.md)** - Detailed installation instructions for all platforms
+- **[Usage Guide](docs/usage.md)** - Comprehensive usage examples and workflows  
+- **[Shell Integration](docs/shell-integration.md)** - Complete shell setup and alias configuration
+- **[Advanced Features](docs/advanced-features.md)** - Power user features and automation
+- **[Troubleshooting](docs/troubleshooting.md)** - Solutions for common issues and problems
+
+## Quick Start
+
+### Basic Installation
 
 ```bash
 cargo install rmxt
 ```
 
-### From Source
+For detailed installation instructions including platform-specific setup, see the **[Installation Guide](docs/installation.md)**.
+
+## Basic Usage
 
 ```bash
-git clone https://github.com/santoshxshrestha/rmxt
-cd rmxt
-cargo build --release
-sudo cp target/release/rmxt /usr/local/bin/
-```
+# Remove files safely (move to trash)
+rmxt file.txt directory/
 
-## Commands & Usage
-
-### Basic File Operations
-
-```bash
-# Remove files (move to trash)
-rmxt file.txt
-rmxt file1.txt file2.txt file3.txt
-rmxt *.log
-
-# Remove directories recursively
-rmxt -r directory/
-
-# Remove empty directories
-rmxt -d empty_directory/
-
-# Force removal without prompts
-rmxt -f file.txt
-
-# Combined options
-rmxt -rf directory/          # Recursive + force
-rmxt -df empty_dir1/ empty_dir2/  # Directory + force
-```
-
-### Trash Management
-
-```bash
-# List all files in trash with details
+# List files in trash
 rmxt list
 
-# List all files in trash from the last 10 days
-rmxt list -t 10
-
-# Recover specific file from trash
-rmxt recover filename.txt
-
-# Recover all files from trash to their original locations
+# Recover files from trash  
+rmxt recover file.txt
 rmxt recover-all
 
-# Recover all files from 20 days ago to now
-rmxt recover-all -t 20
-
-# Permanently delete specific file from trash
-rmxt purge filename.txt
-
-# Clean trash (remove files older than 30 days)
+# Clean old files from trash
 rmxt tidy
-
-# Clean trash (remove files older then 20 days)
-rmxt tidy -t 20
 ```
 
-### Permanent Deletion (Bypass Trash)
+For comprehensive usage examples, workflows, and advanced operations, see the **[Usage Guide](docs/usage.md)**.
+
+## Shell Integration
+
+Replace `rm` with `rmxt` for safer file operations:
 
 ```bash
-# Permanently delete without using trash
-rmxt -i file.txt
-rmxt -i file1.txt file2.txt
-
-# Permanently delete directory
-rmxt -ir directory/
-
-# Permanently delete with force
-rmxt -ifr directory/
+# Add to ~/.bashrc or ~/.zshrc
+alias rm='rmxt'
 ```
 
-> **⚠️ Warning:** The `-i, --ignore` flag permanently deletes files without moving them to trash. Use with caution!
+For complete shell integration including advanced configurations, tab completion, and cross-shell compatibility, see the **[Shell Integration Guide](docs/shell-integration.md)**.
 
-## Command Reference
+## Command Reference (Quick Reference)
 
-### All Flags
+### Flags
 
 | Flag | Long Form     | Description                                 |
 | ---- | ------------- | ------------------------------------------- |
@@ -108,142 +73,92 @@ rmxt -ifr directory/
 | `-r` | `--recursive` | Remove directories and contents recursively |
 | `-f` | `--force`     | Force removal without prompts               |
 | `-d` | `--dir`       | Remove empty directories                    |
-| `-h` | `--help`      | Show help information                       |
-| `-V` | `--version`   | Show version information                    |
 | `-t` | `--time`      | Specify days for recovery or tidy commands  |
 
-### Subcommands
+### Commands
 
-| Command          | Description                                                         |
-| ---------------- | ------------------------------------------------------------------- |
-| `list`           | Show all files in trash with deletion timestamps and original paths in a formatted table |
-| `recover <name>` | Restore specific file from trash to its original location           |
-| `recover-all`    | Restore all files from trash to their original locations            |
-| `purge <name>`   | Permanently delete specific file from trash                         |
-| `tidy`           | Permanently delete files older than 30 days from trash              |
-| `help`           | Show help message or help for specific subcommand                   |
+| Command          | Description                                      |
+| ---------------- | ------------------------------------------------ |
+| `list [-t days]` | Show files in trash with optional time filter   |
+| `recover <name>` | Restore specific file from trash                |
+| `recover-all`    | Restore all files from trash                    |
+| `purge <name>`   | Permanently delete specific file from trash     |
+| `tidy [-t days]` | Remove old files from trash (default: 30 days)  |
 
-## Trash Location
+> **⚠️ Warning:** The `-i, --ignore` flag permanently deletes files without moving them to trash. Use with caution!
 
-Files are moved to the system trash directory using platform-native locations:
+## Advanced Features
 
-- **Linux**: `~/.local/share/Trash/files/`
-- **macOS**: `~/.Trash/`
-- **Windows**: Recycle Bin
+For power users and complex workflows:
 
-The exact location is managed by the system's trash implementation, ensuring compatibility with your desktop environment's trash functionality.
+- **[Scripting and Automation](docs/advanced-features.md#scripting-and-automation)** - Integrate rmxt into build systems and scripts
+- **[Cross-Platform Integration](docs/advanced-features.md#cross-platform-trash-integration)** - Platform-specific optimizations
+- **[Performance Optimization](docs/advanced-features.md#performance-optimization)** - Handle large directories efficiently  
+- **[Integration with Other Tools](docs/advanced-features.md#integration-with-other-tools)** - Use with find, fd, ripgrep, and git
 
-## File Recovery
+## Troubleshooting
 
-### Using Commands
+Having issues? Check the **[Troubleshooting Guide](docs/troubleshooting.md)** for solutions to common problems:
 
-```bash
-# List what's in trash
-rmxt list
+- Installation and compilation issues
+- Permission and access problems  
+- Recovery and trash system issues
+- Platform-specific problems
+- Performance and integration issues
 
-# Sample output (formatted table):
-# ┌──────────────┬─────────────────────────┬─────────────────────┐
-# │ name         │ original_location       │ deleted_at          │
-# ├──────────────┼─────────────────────────┼─────────────────────┤
-# │ document.pdf │ /home/user/Documents    │ 2024-01-15 14:30:22 │
-# │ image.png    │ /home/user/Pictures     │ 2024-01-14 09:15:10 │
-# └──────────────┴─────────────────────────┴─────────────────────┘
+## Cross-Platform Support
 
-# Recover specific file
-rmxt recover document.pdf
+rmxt integrates with native system trash implementations across platforms:
 
-# Recover all files
-rmxt recover-all
-```
+- **Linux**: `~/.local/share/Trash/files/` (XDG specification)
+- **macOS**: `~/.Trash/` (Finder integration)
+- **Windows**: Recycle Bin (native integration)
 
-### Important Recovery Notes
+The exact location is managed by the system's trash implementation, ensuring compatibility with your desktop environment.
 
-- Files are restored to their original locations when possible
-- Original file permissions and timestamps are preserved
-- If the original directory no longer exists, recovery may fail
-- Use `rmxt list` to see available files and their original paths
+## Development & Contributing
 
-## Shell Integration
+### How to Contribute
 
-Replace `rm` with `rmxt` by adding aliases to your shell configuration:
+We welcome contributions! Here's how you can help:
 
-### Bash/Zsh
+1. **Report Issues**: Found a bug or have a feature request? [Open an issue](https://github.com/santoshxshrestha/rmxt/issues)
+2. **Submit Pull Requests**: Fix bugs or add features with a pull request
+3. **Improve Documentation**: Help expand or clarify the documentation
+4. **Share Feedback**: Let us know how you use rmxt and what could be better
 
-Add to `~/.bashrc` or `~/.zshrc`:
+### Development Setup
 
 ```bash
-alias rm='rmxt'
+# Clone the repository
+git clone https://github.com/santoshxshrestha/rmxt
+cd rmxt
+
+# Build and test
+cargo build
+cargo test
+
+# Install locally for testing
+cargo install --path .
 ```
-
-### Fish Shell
-
-Add to `~/.config/fish/config.fish`:
-
-```fish
-alias rm='rmxt'
-```
-
-### PowerShell (Windows)
-
-Add to your PowerShell profile:
-
-```powershell
-Set-Alias rm rmxt
-```
-
-After adding aliases, reload your shell:
-
-```bash
-# Bash/Zsh
-source ~/.bashrc  # or ~/.zshrc
-
-# Fish
-source ~/.config/fish/config.fish
-```
-
-## Dependencies
-
-This project uses the following key dependencies:
-
-- **[chrono](https://crates.io/crates/chrono)** - Date and time handling for trash cleanup
-- **[clap](https://crates.io/crates/clap)** - Command-line argument parsing with derive macros
-- **[trash](https://crates.io/crates/trash)** - Cross-platform system trash integration
-- **[walkdir](https://crates.io/crates/walkdir)** - Recursive directory traversal
-- **[dirs](https://crates.io/crates/dirs)** - Platform-specific directory utilities
-- **[colored](https://crates.io/crates/colored)** - Terminal text coloring for error messages
-- **[tabled](https://crates.io/crates/tabled)** - Table formatting for trash listing output
-
-## Development Status & Improvements
 
 ### Recent Updates (v0.1.7)
 
-- **Enhanced user interface** - Error messages now display in red color for better visibility
-- **Improved output formatting** - Trash listings now show in a clean, formatted table
-- **Better error handling** - More robust error handling throughout the application
-- **Time-based filtering** - All commands now support time-based filtering options
-- **Multiple file support** - `recover` and `purge` commands can now handle multiple files at once
-- **Rust 2024 edition** - Updated to use the latest Rust edition for improved performance
-
-### Current Limitations
-
-- Some functions still use `unwrap()` for error handling, which may cause panics on unexpected errors
-- Limited graceful error recovery in some edge cases
+- Enhanced user interface with colored error messages
+- Improved output formatting with clean table display
+- Better error handling throughout the application
+- Time-based filtering for all commands
+- Multiple file support for recover and purge commands
+- Updated to Rust 2024 edition
 
 ### Planned Improvements
 
-- Continue replacing `unwrap()` calls with proper error propagation using `Result` and `?` operator
+- Replace `unwrap()` calls with proper error propagation
 - Enhanced configuration options for trash behavior
 - More robust file conflict resolution
-- Performance optimizations for large trash directories
+- Performance optimizations for large directories
 
-## Contributing
-
-Contributions are welcome! Please feel free to:
-
-- Report bugs and issues
-- Suggest new features
-- Submit pull requests
-- Improve documentation
+For technical details and advanced development topics, see the documentation guides.
 
 ## License
 
