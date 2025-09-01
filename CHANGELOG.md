@@ -159,7 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Initial project setup with Cargo configuration
-- Core dependencies: chrono, clap, dirs, trash, walkdir
+- Core dependencies: chrono, clap, colored, tabled, trash
 - Basic argument parsing structure with clap
 - Foundation for trash-based file removal functionality
 - Nix flake support for development environment
