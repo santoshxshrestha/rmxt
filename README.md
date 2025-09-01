@@ -17,11 +17,9 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 
 For comprehensive guides and detailed examples, see our modular documentation:
 
-- **[Installation Guide](docs/installation.md)** - Detailed installation instructions for all platforms
+- **[Installation Guide](docs/install.md)** - Detailed installation instructions for all platforms
 - **[Usage Guide](docs/usage.md)** - Comprehensive usage examples and workflows  
-- **[Shell Integration](docs/shell-integration.md)** - Complete shell setup and alias configuration
-- **[Advanced Features](docs/advanced-features.md)** - Power user features and automation
-- **[Troubleshooting](docs/troubleshooting.md)** - Solutions for common issues and problems
+- **[Advanced Features](docs/advanced.md)** - Shell integration, automation, and troubleshooting
 
 ## Quick Start
 
@@ -39,7 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/
 cargo install rmxt
 ```
 
-For detailed installation instructions including platform-specific setup, see the **[Installation Guide](docs/installation.md)**.
+For detailed installation instructions including platform-specific setup, see the **[Installation Guide](docs/install.md)**.
 
 ## Basic Usage
 
@@ -69,7 +67,7 @@ Replace `rm` with `rmxt` for safer file operations:
 alias rm='rmxt'
 ```
 
-For complete shell integration including advanced configurations, tab completion, and cross-shell compatibility, see the **[Shell Integration Guide](docs/shell-integration.md)**.
+For complete shell integration including advanced configurations, tab completion, and cross-shell compatibility, see the **[Advanced Features Guide](docs/advanced.md)**.
 
 ## Command Reference (Quick Reference)
 
@@ -99,20 +97,16 @@ For complete shell integration including advanced configurations, tab completion
 
 For power users and complex workflows:
 
-- **[Scripting and Automation](docs/advanced-features.md#scripting-and-automation)** - Integrate rmxt into build systems and scripts
-- **[Cross-Platform Integration](docs/advanced-features.md#cross-platform-trash-integration)** - Platform-specific optimizations
-- **[Performance Optimization](docs/advanced-features.md#performance-optimization)** - Handle large directories efficiently  
-- **[Integration with Other Tools](docs/advanced-features.md#integration-with-other-tools)** - Use with find, fd, ripgrep, and git
+- **[Shell Integration and Automation](docs/advanced.md#shell-integration)** - Complete shell setup and automation
+- **[Troubleshooting](docs/advanced.md#troubleshooting)** - Solutions for common problems
 
 ## Troubleshooting
 
-Having issues? Check the **[Troubleshooting Guide](docs/troubleshooting.md)** for solutions to common problems:
+Having issues? Check the **[Advanced Features Guide](docs/advanced.md#troubleshooting)** for solutions to common problems:
 
 - Installation and compilation issues
 - Permission and access problems  
 - Recovery and trash system issues
-- Platform-specific problems
-- Performance and integration issues
 
 ## Cross-Platform Support
 
