@@ -10,6 +10,8 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 - **Shell integration** - Drop-in replacement for `rm` command
 - **Safety first** - Prevents accidental permanent deletion
 - **Flexible options** - Force, recursive, and bypass modes available
+- **Enhanced output** - Colored error messages and formatted table display for trash listings
+- **Time-based operations** - Filter and manage files based on deletion timestamps
 
 ## Installation
 
@@ -114,7 +116,7 @@ rmxt -ifr directory/
 
 | Command          | Description                                                         |
 | ---------------- | ------------------------------------------------------------------- |
-| `list`           | Show all files in trash with deletion timestamps and original paths |
+| `list`           | Show all files in trash with deletion timestamps and original paths in a formatted table |
 | `recover <name>` | Restore specific file from trash to its original location           |
 | `recover-all`    | Restore all files from trash to their original locations            |
 | `purge <name>`   | Permanently delete specific file from trash                         |
@@ -139,10 +141,13 @@ The exact location is managed by the system's trash implementation, ensuring com
 # List what's in trash
 rmxt list
 
-# Sample output:
-# Name: document.pdf
-# Original Location: /home/user/Documents
-# Deleted At: 2024-01-15 14:30:22
+# Sample output (formatted table):
+# ┌──────────────┬─────────────────────────┬─────────────────────┐
+# │ name         │ original_location       │ deleted_at          │
+# ├──────────────┼─────────────────────────┼─────────────────────┤
+# │ document.pdf │ /home/user/Documents    │ 2024-01-15 14:30:22 │
+# │ image.png    │ /home/user/Pictures     │ 2024-01-14 09:15:10 │
+# └──────────────┴─────────────────────────┴─────────────────────┘
 
 # Recover specific file
 rmxt recover document.pdf
@@ -205,20 +210,31 @@ This project uses the following key dependencies:
 - **[trash](https://crates.io/crates/trash)** - Cross-platform system trash integration
 - **[walkdir](https://crates.io/crates/walkdir)** - Recursive directory traversal
 - **[dirs](https://crates.io/crates/dirs)** - Platform-specific directory utilities
+- **[colored](https://crates.io/crates/colored)** - Terminal text coloring for error messages
+- **[tabled](https://crates.io/crates/tabled)** - Table formatting for trash listing output
 
-## Development Status & Limitations
+## Development Status & Improvements
+
+### Recent Updates (v0.1.7)
+
+- **Enhanced user interface** - Error messages now display in red color for better visibility
+- **Improved output formatting** - Trash listings now show in a clean, formatted table
+- **Better error handling** - More robust error handling throughout the application
+- **Time-based filtering** - All commands now support time-based filtering options
+- **Multiple file support** - `recover` and `purge` commands can now handle multiple files at once
+- **Rust 2024 edition** - Updated to use the latest Rust edition for improved performance
 
 ### Current Limitations
 
-- The implementation uses `unwrap()` for error handling, which may cause panics on unexpected errors
+- Some functions still use `unwrap()` for error handling, which may cause panics on unexpected errors
 - Limited graceful error recovery in some edge cases
 
 ### Planned Improvements
 
-- Replace `unwrap()` calls with proper error propagation using `Result` and `?` operator
-- Enhanced error messages and recovery mechanisms
-- Additional configuration options for trash behavior
+- Continue replacing `unwrap()` calls with proper error propagation using `Result` and `?` operator
+- Enhanced configuration options for trash behavior
 - More robust file conflict resolution
+- Performance optimizations for large trash directories
 
 ## Contributing
 
