@@ -1,5 +1,9 @@
 use chrono::{Local, TimeZone};
 use colored::Colorize;
+use tabled::{
+    Table, Tabled,
+    settings::{Alignment, Style, object::Columns},
+};
 use trash::os_limited::restore_all;
 mod args;
 use args::Args;
@@ -8,7 +12,25 @@ use std::fs;
 use trash::os_limited;
 use trash::{TrashItem, delete};
 
+#[derive(Tabled)]
+pub struct List {
+    name: String,
+    original_location: String,
+    deleted_at: String,
+}
+
+impl List {
+    pub fn new(name: String, original_location: String, deleted_at: String) -> Self {
+        Self {
+            name,
+            original_location,
+            deleted_at,
+        }
+    }
+}
+
 pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
+    let mut list: Vec<List> = vec![];
     let entries = os_limited::list()?;
     let now = Local::now().timestamp();
     for entry in entries {
@@ -18,14 +40,17 @@ pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
                 .single()
                 .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
                 .unwrap_or_else(|| "Unknown time".to_string());
-            println!(
-                "Name: {}\nOriginal Location: {}\nDeleted At: {}\n",
-                entry.name.to_string_lossy(),
-                entry.original_parent.to_string_lossy(),
-                time_deleted
-            );
+            list.push(List::new(
+                entry.name.to_string_lossy().to_string(),
+                entry.original_path().to_string_lossy().to_string(),
+                time_deleted,
+            ));
         }
     }
+    let mut table = Table::new(&list);
+    table.with(Style::modern());
+    table.modify(Columns::first(), Alignment::right());
+    println!("{table}");
     Ok(())
 }
 
