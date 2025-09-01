@@ -146,7 +146,7 @@ fn main() {
             }
         } else {
             let Ok(entries) = os_limited::list() else {
-                eprintln!("{}", format!("Error listing items ").red());
+                eprintln!("{}", "Error listing items ".to_string().red());
                 return;
             };
             let now = Local::now().timestamp();
@@ -208,7 +208,7 @@ fn main() {
 All the contents from the trash more then {days} days will be deleted permanently 
             Do you want to proceed? (yes/no)
 ",
-            format!("Warning: ").red()
+            "Warning: ".to_string().red()
         );
         let mut input = String::new();
         std::io::stdin()
