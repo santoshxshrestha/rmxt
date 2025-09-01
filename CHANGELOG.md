@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `list` command will also have args to filter files based on days
 - added config for the formatter
 - `list` command will now print the content in trash in a table format
+- installation and uninstallation scripts for easier setup and removal
 
 ### Changed
 
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- modular documentation
 - minor bug fixes and improvements
 - better error handling with results and if lets
 
