@@ -33,8 +33,9 @@ pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
     let mut list: Vec<List> = vec![];
     let entries = os_limited::list()?;
     let now = Local::now().timestamp();
+    let cutoff_time = now - seconds;
     for entry in entries {
-        if now - entry.time_deleted < seconds {
+        if entry.time_deleted >= cutoff_time {
             let time_deleted = Local
                 .timestamp_opt(entry.time_deleted, 0)
                 .single()
@@ -84,17 +85,21 @@ pub fn list_trash() {
 
 pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     let seconds: i64 = days * 86400;
+    let cutoff_time = Local::now().timestamp() - seconds;
     let content_to_purge = trash::os_limited::list()?
         .into_iter()
-        .filter(|item| item.time_deleted < seconds)
+        .filter(|item| item.time_deleted < cutoff_time)
         .collect::<Vec<TrashItem>>();
 
     if !content_to_purge.is_empty() {
+        let purge_count = content_to_purge.len();
         if let Err(e) = os_limited::purge_all(content_to_purge) {
             eprintln!("{}", format!("Error purging items: {e}").red());
         } else {
-            println!("No items found to purge older than {days} days",);
+            println!("Purged {purge_count} items older than {days} days");
         }
+    } else {
+        println!("No items found to purge older than {days} days");
     }
     Ok(())
 }
@@ -150,8 +155,9 @@ fn main() {
                 return;
             };
             let now = Local::now().timestamp();
+            let cutoff_time = now - seconds;
             for entry in entries {
-                if now - entry.time_deleted < seconds {
+                if entry.time_deleted >= cutoff_time {
                     content_to_recover.push(entry);
                 }
             }

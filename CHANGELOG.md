@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2025-09-01
+
+### Fixed
+
+- **Critical Time System Bug**: Fixed incorrect time comparison logic in `tidy` command that was comparing timestamps against duration values instead of proper cutoff times
+- **Time Filtering Logic**: Corrected time filtering in `list -t` and `recover-all -t` commands to show items within the specified time range instead of showing newer items
+- **Consistent Time Handling**: All time-based operations now use consistent comparison logic with proper cutoff time calculations
+- **Borrow Checker Issues**: Resolved Rust ownership issues in tidy function by storing count before moving vectors
+
 ## [0.1.8] - 2025-09-01
 
 ### Added
@@ -166,7 +175,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MIT License
 - Initial README and project documentation
 
-[Unreleased]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/santoshxshrestha/rmxt/compare/v0.1.5...v0.1.6
