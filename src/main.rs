@@ -77,7 +77,7 @@ pub fn list_trash() {
             println!("{table}");
         }
         Err(e) => {
-            eprintln!("Failed to list trash entries: {e}");
+            eprintln!("{}", format!("Failed to list trash entries: {e}").red())
         }
     }
 }
@@ -91,9 +91,9 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
 
     if !content_to_purge.is_empty() {
         if let Err(e) = os_limited::purge_all(content_to_purge) {
-            eprintln!("Error purging items: {e}");
+            eprintln!("{}", format!("Error purging items: {e}").red());
         } else {
-            println!("No items found to purge older than {days} days");
+            println!("No items found to purge older than {days} days",);
         }
     }
     Ok(())
@@ -117,13 +117,13 @@ fn main() {
                 .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
                 .collect::<Vec<TrashItem>>(),
             Err(e) => {
-                eprintln!("Error listing items: {e} ");
+                eprintln!("{}", format!("Error listing items: {e} ").red());
                 return;
             }
         };
         if !content_to_purge.is_empty() {
             if let Err(e) = trash::os_limited::purge_all(content_to_purge) {
-                eprintln!("Error purging items: {e}");
+                eprintln!("{}", format!("Error purging items: {e}").red());
             }
         } else {
             println!("No items found to purge with such names");
@@ -137,16 +137,16 @@ fn main() {
             match os_limited::list() {
                 Ok(items) => {
                     if let Err(e) = restore_all(items) {
-                        eprintln!("Error recovering items: {e}");
+                        eprintln!("{}", format!("Error recovering items: {e}").red());
                     }
                 }
                 Err(e) => {
-                    eprintln!("Error listing items: {e}");
+                    eprintln!("{}", format!("Error listing items: {e}").red());
                 }
             }
         } else {
             let Ok(entries) = os_limited::list() else {
-                eprintln!("Error listing items ");
+                eprintln!("{}", format!("Error listing items ").red());
                 return;
             };
             let now = Local::now().timestamp();
@@ -156,7 +156,7 @@ fn main() {
                 }
             }
             if let Err(e) = trash::os_limited::restore_all(content_to_recover) {
-                eprintln!("Error recovering items: {e}");
+                eprintln!("{}", format!("Error recovering items: {e}").red());
             }
         }
     }
@@ -169,7 +169,7 @@ fn main() {
             return;
         } else {
             if let Err(e) = list_specific_trash(seconds) {
-                eprintln!("Failed to list trash entries: {e}");
+                eprintln!("{}", format!("Failed to list trash entries: {e}").red());
             }
             return;
         }
@@ -185,13 +185,14 @@ fn main() {
                 .collect::<Vec<TrashItem>>(),
             Err(e) => {
                 eprintln!("Error listing items: {e} ");
+
                 return;
             }
         };
 
         if !content_to_recover.is_empty() {
             if let Err(e) = trash::os_limited::restore_all(content_to_recover) {
-                eprintln!("Error recovering items: {e}");
+                eprintln!("{}", format!("Error recovering items: {e}").red());
             }
         } else {
             println!("No items found to recover with such names");
@@ -221,7 +222,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
         }
 
         if let Err(e) = tidy_trash(days) {
-            eprintln!("Error tidying trash: {e}");
+            eprintln!("{}", format!("Error tidying trash: {e}").red());
         }
         return;
     }
@@ -230,16 +231,25 @@ All the contents from the trash more then {days} days will be deleted permanentl
     if args.is_remove() {
         // iterating over the paths
         for path in paths {
+            if !path.exists() {
+                eprintln!(
+                    "{}",
+                    format!("rmxd: cannot remove {path:?}: No such file or directory").red()
+                )
+            }
             if path.is_dir() && dir {
                 if let Err(e) = fs::remove_dir(&path) {
-                    eprintln!("Error removing directory: {e}")
+                    eprintln!("{}", format!("Error removing directory: {e}").red())
                 }
                 continue;
             }
 
             if path.is_dir() && !recursive {
                 if !force {
-                    eprintln!("rmxd: cannot remove {path:?}: Is a directory");
+                    eprintln!(
+                        "{}",
+                        format!("rmxd: cannot remove {path:?}: Is a directory").red()
+                    );
                 }
                 continue;
             }
@@ -247,10 +257,13 @@ All the contents from the trash more then {days} days will be deleted permanentl
             if ignore {
                 // not need of seperate function for this
                 if let Err(e) = fs::remove_dir_all(&path) {
-                    eprintln!("Error deleting with out moving to trash: {e}")
+                    eprintln!(
+                        "{}",
+                        format!("Error deleting with out moving to trash: {e}").red()
+                    )
                 }
             } else if let Err(e) = delete(&path) {
-                eprintln!("Error moving to trash: {e}");
+                eprintln!("{}", format!("Error moving to trash: {e}").red());
             }
         }
     }
