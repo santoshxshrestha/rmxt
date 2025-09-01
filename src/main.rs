@@ -1,18 +1,37 @@
-#![allow(unused)]
 use chrono::{Local, TimeZone};
+use colored::Colorize;
+use tabled::{
+    Table, Tabled,
+    settings::{Alignment, Style, object::Columns},
+};
+use trash::os_limited::restore_all;
 mod args;
 use args::Args;
-use args::Commands::RecoverAll;
-use args::Commands::Tidy;
 use clap::Parser;
-use clap::builder::OsStr;
-use std::error::Error;
-use std::{fs, result};
-use trash::os_limited::{self, purge_all, restore_all};
+use std::fs;
+use trash::os_limited;
 use trash::{TrashItem, delete};
 
-pub fn list_specific_trash(seconds: i64) {
-    let entries = trash::os_limited::list().unwrap();
+#[derive(Tabled)]
+pub struct List {
+    name: String,
+    original_location: String,
+    deleted_at: String,
+}
+
+impl List {
+    pub fn new(name: String, original_location: String, deleted_at: String) -> Self {
+        Self {
+            name,
+            original_location,
+            deleted_at,
+        }
+    }
+}
+
+pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
+    let mut list: Vec<List> = vec![];
+    let entries = os_limited::list()?;
     let now = Local::now().timestamp();
     for entry in entries {
         if now - entry.time_deleted < seconds {
@@ -21,18 +40,23 @@ pub fn list_specific_trash(seconds: i64) {
                 .single()
                 .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
                 .unwrap_or_else(|| "Unknown time".to_string());
-            println!(
-                "Name: {}\nOriginal Location: {}\nDeleted At: {}\n",
-                entry.name.to_string_lossy(),
-                entry.original_parent.to_string_lossy(),
-                time_deleted
-            );
+            list.push(List::new(
+                entry.name.to_string_lossy().to_string(),
+                entry.original_path().to_string_lossy().to_string(),
+                time_deleted,
+            ));
         }
     }
+    let mut table = Table::new(&list);
+    table.with(Style::modern());
+    table.modify(Columns::first(), Alignment::right());
+    println!("{table}");
+    Ok(())
 }
 
 pub fn list_trash() {
-    match trash::os_limited::list() {
+    let mut list: Vec<List> = vec![];
+    match os_limited::list() {
         Ok(trash) => {
             for entry in trash {
                 let time_deleted = Local
@@ -41,36 +65,38 @@ pub fn list_trash() {
                     .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
                     .unwrap_or_else(|| "Unknown time".to_string());
 
-                println!(
-                    "Name: {}\nOriginal Location: {}\nDeleted At: {}\n",
-                    entry.name.to_string_lossy(),
-                    entry.original_parent.to_string_lossy(),
-                    time_deleted
-                );
+                list.push(List::new(
+                    entry.name.to_string_lossy().to_string(),
+                    entry.original_path().to_string_lossy().to_string(),
+                    time_deleted,
+                ))
             }
+            let mut table = Table::new(&list);
+            table.with(Style::modern());
+            table.modify(Columns::first(), Alignment::right());
+            println!("{table}");
         }
         Err(e) => {
-            eprintln!("Failed to list trash entries: {e}");
+            eprintln!("{}", format!("Failed to list trash entries: {e}").red())
         }
     }
 }
 
-pub fn tidy_trash(days: i64) {
+pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     let seconds: i64 = days * 86400;
-    let now = Local::now().timestamp();
-    let content_to_purge = trash::os_limited::list()
-        .unwrap()
+    let content_to_purge = trash::os_limited::list()?
         .into_iter()
         .filter(|item| item.time_deleted < seconds)
         .collect::<Vec<TrashItem>>();
 
     if !content_to_purge.is_empty() {
-        if let Err(e) = trash::os_limited::purge_all(content_to_purge) {
-            eprintln!("Error purging items: {e}");
+        if let Err(e) = os_limited::purge_all(content_to_purge) {
+            eprintln!("{}", format!("Error purging items: {e}").red());
         } else {
-            println!("No items found to purge older than {days} days");
+            println!("No items found to purge older than {days} days",);
         }
     }
+    Ok(())
 }
 
 fn main() {
@@ -85,15 +111,19 @@ fn main() {
 
     if args.is_purge() {
         let names = args.get_purge_name();
-        let content_to_purge = trash::os_limited::list()
-            .unwrap()
-            .into_iter()
-            .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
-            .collect::<Vec<TrashItem>>();
-
+        let content_to_purge = match trash::os_limited::list() {
+            Ok(item) => item
+                .into_iter()
+                .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
+                .collect::<Vec<TrashItem>>(),
+            Err(e) => {
+                eprintln!("{}", format!("Error listing items: {e} ").red());
+                return;
+            }
+        };
         if !content_to_purge.is_empty() {
             if let Err(e) = trash::os_limited::purge_all(content_to_purge) {
-                eprintln!("Error purging items: {e}");
+                eprintln!("{}", format!("Error purging items: {e}").red());
             }
         } else {
             println!("No items found to purge with such names");
@@ -104,9 +134,21 @@ fn main() {
         let seconds = args.get_time_recover() * 86400;
         let mut content_to_recover = vec![];
         if seconds == 0 {
-            restore_all(os_limited::list().unwrap());
+            match os_limited::list() {
+                Ok(items) => {
+                    if let Err(e) = restore_all(items) {
+                        eprintln!("{}", format!("Error recovering items: {e}").red());
+                    }
+                }
+                Err(e) => {
+                    eprintln!("{}", format!("Error listing items: {e}").red());
+                }
+            }
         } else {
-            let entries = trash::os_limited::list().unwrap();
+            let Ok(entries) = os_limited::list() else {
+                eprintln!("{}", "Error listing items ".to_string().red());
+                return;
+            };
             let now = Local::now().timestamp();
             for entry in entries {
                 if now - entry.time_deleted < seconds {
@@ -114,7 +156,7 @@ fn main() {
                 }
             }
             if let Err(e) = trash::os_limited::restore_all(content_to_recover) {
-                eprintln!("Error recovering items: {e}");
+                eprintln!("{}", format!("Error recovering items: {e}").red());
             }
         }
     }
@@ -126,23 +168,31 @@ fn main() {
             list_trash();
             return;
         } else {
-            list_specific_trash(seconds);
+            if let Err(e) = list_specific_trash(seconds) {
+                eprintln!("{}", format!("Failed to list trash entries: {e}").red());
+            }
             return;
         }
-        return;
     }
 
     // recovering files from trash if the recover command is used
     if args.is_recover() {
         let names = args.get_recover_name();
-        let content_to_recover = trash::os_limited::list()
-            .unwrap()
-            .into_iter()
-            .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
-            .collect::<Vec<TrashItem>>();
+        let content_to_recover = match os_limited::list() {
+            Ok(item) => item
+                .into_iter()
+                .filter(|item| names.contains(&item.name.to_string_lossy().to_string()))
+                .collect::<Vec<TrashItem>>(),
+            Err(e) => {
+                eprintln!("Error listing items: {e} ");
+
+                return;
+            }
+        };
+
         if !content_to_recover.is_empty() {
             if let Err(e) = trash::os_limited::restore_all(content_to_recover) {
-                eprintln!("Error recovering items: {e}");
+                eprintln!("{}", format!("Error recovering items: {e}").red());
             }
         } else {
             println!("No items found to recover with such names");
@@ -154,7 +204,11 @@ fn main() {
     if args.is_tidy() {
         let days = args.get_time_tidy();
         println!(
-            "Warning: This will tidy the trash. \nAll the contents for the trash more then {days} days will me deleted permanently.\n  Do you want to proceed? (yes/no)"
+            "           {}This will tidy the trash.
+All the contents from the trash more then {days} days will be deleted permanently 
+            Do you want to proceed? (yes/no)
+",
+            "Warning: ".to_string().red()
         );
         let mut input = String::new();
         std::io::stdin()
@@ -167,7 +221,9 @@ fn main() {
             return;
         }
 
-        tidy_trash(days);
+        if let Err(e) = tidy_trash(days) {
+            eprintln!("{}", format!("Error tidying trash: {e}").red());
+        }
         return;
     }
 
@@ -175,16 +231,25 @@ fn main() {
     if args.is_remove() {
         // iterating over the paths
         for path in paths {
+            if !path.exists() {
+                eprintln!(
+                    "{}",
+                    format!("rmxd: cannot remove {path:?}: No such file or directory").red()
+                )
+            }
             if path.is_dir() && dir {
                 if let Err(e) = fs::remove_dir(&path) {
-                    eprintln!("Error removing directory: {e}")
+                    eprintln!("{}", format!("Error removing directory: {e}").red())
                 }
                 continue;
             }
 
             if path.is_dir() && !recursive {
                 if !force {
-                    eprintln!("rmxd: cannot remove {path:?}: Is a directory");
+                    eprintln!(
+                        "{}",
+                        format!("rmxd: cannot remove {path:?}: Is a directory").red()
+                    );
                 }
                 continue;
             }
@@ -192,10 +257,13 @@ fn main() {
             if ignore {
                 // not need of seperate function for this
                 if let Err(e) = fs::remove_dir_all(&path) {
-                    eprintln!("Error deleting with out moving to trash: {e}")
+                    eprintln!(
+                        "{}",
+                        format!("Error deleting with out moving to trash: {e}").red()
+                    )
                 }
             } else if let Err(e) = delete(&path) {
-                eprintln!("Error moving to trash: {e}");
+                eprintln!("{}", format!("Error moving to trash: {e}").red());
             }
         }
     }

@@ -82,17 +82,17 @@ impl Args {
 
     /// Check if list command is active
     pub fn is_list(&self) -> bool {
-        matches!(self.command, Some(Commands::List { time }))
+        matches!(self.command, Some(Commands::List { .. }))
     }
 
     /// Check if tidy command is active
     pub fn is_tidy(&self) -> bool {
-        matches!(self.command, Some(Commands::Tidy { time }))
+        matches!(self.command, Some(Commands::Tidy { .. }))
     }
 
     /// Check if RecoverAll command is active
     pub fn is_recover_all(&self) -> bool {
-        matches!(self.command, Some(Commands::RecoverAll { time }))
+        matches!(self.command, Some(Commands::RecoverAll { .. }))
     }
 
     /// Check if recover command is active
