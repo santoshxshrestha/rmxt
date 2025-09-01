@@ -173,7 +173,9 @@ fn main() {
     if args.is_tidy() {
         let days = args.get_time_tidy();
         println!(
-            "Warning: This will tidy the trash. \nAll the contents for the trash more then {days} days will me deleted permanently.\n  Do you want to proceed? (yes/no)"
+            "Warning: This will tidy the trash. 
+All the contents for the trash more then {days} days will me deleted permanently.
+               Do you want to proceed? (yes/no)"
         );
         let mut input = String::new();
         std::io::stdin()
