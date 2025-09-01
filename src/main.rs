@@ -1,4 +1,5 @@
 use chrono::{Local, TimeZone};
+use colored::Colorize;
 use trash::os_limited::restore_all;
 mod args;
 use args::Args;
@@ -173,9 +174,11 @@ fn main() {
     if args.is_tidy() {
         let days = args.get_time_tidy();
         println!(
-            "Warning: This will tidy the trash. 
-All the contents for the trash more then {days} days will me deleted permanently.
-               Do you want to proceed? (yes/no)"
+            "           {}This will tidy the trash.
+All the contents from the trash more then {days} days will be deleted permanently 
+            Do you want to proceed? (yes/no)
+",
+            format!("Warning: ").red()
         );
         let mut input = String::new();
         std::io::stdin()
