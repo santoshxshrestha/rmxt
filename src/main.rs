@@ -260,16 +260,16 @@ All the contents from the trash more then {days} days will be deleted permanentl
                 continue;
             }
 
-            if ignore {
-                // not need of seperate function for this
-                if path.is_dir() {
+            match (ignore, path.is_dir(), path.is_file()) {
+                (true, true, _) => {
                     if let Err(e) = fs::remove_dir_all(&path) {
                         eprintln!(
                             "{}",
                             format!("Error deleting with out moving to trash: {e}").red()
                         )
                     }
-                } else if path.is_file() {
+                }
+                (true, false, true) => {
                     if let Err(e) = fs::remove_file(&path) {
                         eprintln!(
                             "{}",
@@ -277,8 +277,12 @@ All the contents from the trash more then {days} days will be deleted permanentl
                         )
                     }
                 }
-            } else if let Err(e) = delete(&path) {
-                eprintln!("{}", format!("Error moving to trash: {e}").red());
+                (false, _, _) => {
+                    if let Err(e) = delete(&path) {
+                        eprintln!("{}", format!("Error moving to trash: {e}").red());
+                    }
+                }
+                _ => {}
             }
         }
     }
