@@ -240,7 +240,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
             if !path.exists() {
                 eprintln!(
                     "{}",
-                    format!("rmxd: cannot remove {path:?}: No such file or directory").red()
+                    format!("rmxt: cannot remove {path:?}: No such file or directory").red()
                 )
             }
             if path.is_dir() && dir {
@@ -254,7 +254,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
                 if !force {
                     eprintln!(
                         "{}",
-                        format!("rmxd: cannot remove {path:?}: Is a directory").red()
+                        format!("rmxt: cannot remove {path:?}: Is a directory").red()
                     );
                 }
                 continue;
