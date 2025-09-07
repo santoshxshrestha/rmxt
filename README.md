@@ -75,7 +75,7 @@ For complete shell integration including advanced configurations, tab completion
 
 | Flag | Long Form     | Description                                 |
 | ---- | ------------- | ------------------------------------------- |
-| `-i` | `--ignore`    | Permanently delete without using trash      |
+| `-p` | `--permanent`    | Permanently delete without using trash      |
 | `-r` | `--recursive` | Remove directories and contents recursively |
 | `-f` | `--force`     | Force removal without prompts               |
 | `-d` | `--dir`       | Remove empty directories                    |
@@ -91,7 +91,7 @@ For complete shell integration including advanced configurations, tab completion
 | `purge <name>`   | Permanently delete specific file from trash     |
 | `tidy [-t days]` | Remove old files from trash (default: 30 days)  |
 
-> **⚠️ Warning:** The `-i, --ignore` flag permanently deletes files without moving them to trash. Use with caution!
+> **⚠️ Warning:** The `-p, --permanent` flag permanently deletes files without moving them to trash. Use with caution!
 
 ## Advanced Features
 
