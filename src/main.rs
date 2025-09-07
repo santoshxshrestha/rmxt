@@ -112,7 +112,7 @@ fn main() {
     let recursive = args.recursive;
     let force = args.force;
     let dir = args.dir;
-    let ignore = args.ignore;
+    let permanent = args.permanent;
 
     if args.is_purge() {
         let names = args.get_purge_name();
@@ -260,7 +260,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
                 continue;
             }
 
-            match (ignore, dir, path.is_dir(), path.is_file(), recursive) {
+            match (permanent, dir, path.is_dir(), path.is_file(), recursive) {
                 (true, false, true, _, true) => {
                     if let Err(e) = fs::remove_dir_all(&path) {
                         eprintln!(

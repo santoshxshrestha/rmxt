@@ -13,7 +13,7 @@ pub struct Args {
 
     /// Don't put the file in trash, remove it permanently
     #[arg(short = 'i', long, global = false)]
-    pub ignore: bool,
+    pub permanent: bool,
 
     /// Remove directories and their contents recursively
     #[arg(short = 'r', long, global = false)]
