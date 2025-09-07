@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Renamed the ignore flag to permanent flag**: The `-i, --ignore` flag has been renamed to `-p, --permanent` to better indicate its functionality. It now permanently deletes files instead of moving them to the trash, aligning its behavior with the `rm` command.
+- **Renamed the ignore flag to permanent flag**: The `-i, --ignore` flag has been renamed to `-p, --permanent` to better indicate its functionality.
+  It now permanently deletes files instead of moving them to the trash, aligning its behavior with the `rm` command.
 
 ## [0.1.10] - 2025-09-07
 
