@@ -12,7 +12,7 @@ pub struct Args {
     pub command: Option<Commands>,
 
     /// Don't put the file in trash, remove it permanently
-    #[arg(short = 'i', long, global = false)]
+    #[arg(short = 'p', long, global = false)]
     pub permanent: bool,
 
     /// Remove directories and their contents recursively
