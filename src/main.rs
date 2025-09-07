@@ -265,7 +265,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
                     if let Err(e) = fs::remove_dir_all(&path) {
                         eprintln!(
                             "{}",
-                            format!("Error deleting with out moving to trash: {e}").red()
+                            format!("Error deleting without moving to trash: {e}").red()
                         )
                     }
                 }
@@ -273,7 +273,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
                     if let Err(e) = fs::remove_dir(&path) {
                         eprintln!(
                             "{}",
-                            format!("Error deleting with out moving to trash: {e}").red()
+                            format!("Error deleting without moving to trash: {e}").red()
                         )
                     }
                 }
@@ -281,7 +281,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
                     if let Err(e) = fs::remove_file(&path) {
                         eprintln!(
                             "{}",
-                            format!("Error deleting with out moving to trash: {e}").red()
+                            format!("Error deleting without moving to trash: {e}").red()
                         )
                     }
                 }
