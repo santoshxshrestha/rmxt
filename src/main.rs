@@ -260,24 +260,32 @@ All the contents from the trash more then {days} days will be deleted permanentl
                 continue;
             }
 
-            match (ignore, path.is_dir(), path.is_file()) {
-                (true, true, _) => {
+            match (ignore, dir, path.is_dir(), path.is_file(), recursive) {
+                (true, false, true, _, true) => {
                     if let Err(e) = fs::remove_dir_all(&path) {
                         eprintln!(
                             "{}",
-                            format!("Error deleting with out moving to trash: {e}").red()
+                            format!("Error deleting without moving to trash: {e}").red()
                         )
                     }
                 }
-                (true, false, true) => {
+                (true, true, true, _, false) => {
+                    if let Err(e) = fs::remove_dir(&path) {
+                        eprintln!(
+                            "{}",
+                            format!("Error deleting without moving to trash: {e}").red()
+                        )
+                    }
+                }
+                (true, _, false, true, _) => {
                     if let Err(e) = fs::remove_file(&path) {
                         eprintln!(
                             "{}",
-                            format!("Error deleting with out moving to trash: {e}").red()
+                            format!("Error deleting without moving to trash: {e}").red()
                         )
                     }
                 }
-                (false, _, _) => {
+                (false, _, _, _, _) => {
                     if let Err(e) = delete(&path) {
                         eprintln!("{}", format!("Error moving to trash: {e}").red());
                     }

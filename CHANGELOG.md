@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2025
+
+### Fixed
+- **Critical ignore flag bug**: Fixed issue where `-i, --ignore` flag was not functioning correctly, causing errors while trying to ingore them while using `rmxt` commands
+
+### Changed
+- Imporved different cases handling in the ignore flag logic with match block
+
+### Added
+
 ## [0.1.9] - 2025-09-01
 
 ### Fixed
