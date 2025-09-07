@@ -270,7 +270,7 @@ All the contents from the trash more then {days} days will be deleted permanentl
                     }
                 }
                 (true, true, true, _, false) => {
-                    if let Err(e) = fs::read_dir(&path) {
+                    if let Err(e) = fs::remove_dir(&path) {
                         eprintln!(
                             "{}",
                             format!("Error deleting with out moving to trash: {e}").red()
