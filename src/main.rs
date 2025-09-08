@@ -49,7 +49,7 @@ pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
         }
     }
     let mut table = Table::new(&list);
-    table.with(Style::modern());
+    table.with(Style::rounded());
     table.modify(Columns::first(), Alignment::right());
     println!("{table}");
     Ok(())
@@ -73,7 +73,7 @@ pub fn list_trash() {
                 ))
             }
             let mut table = Table::new(&list);
-            table.with(Style::modern());
+            table.with(Style::rounded());
             table.modify(Columns::first(), Alignment::right());
             println!("{table}");
         }
