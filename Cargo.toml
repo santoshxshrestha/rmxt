@@ -14,6 +14,5 @@ readme = "README.md"
 chrono = "0.4.41"
 clap = { version = "4.5.45", features = ["derive"] }
 colored = "3.0.0"
-regex = "1.11.2"
 tabled = "0.20.0"
 trash = "5.2.3"
