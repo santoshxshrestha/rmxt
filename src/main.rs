@@ -8,7 +8,7 @@ use trash::os_limited::restore_all;
 mod args;
 use args::Args;
 use clap::Parser;
-use std::fs;
+use std::{fs, path::PathBuf};
 use trash::os_limited;
 use trash::{TrashItem, delete};
 
@@ -102,6 +102,22 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
         println!("No items found to purge older than {days} days");
     }
     Ok(())
+}
+
+pub fn check(path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    let trash_list = os_limited::list()?;
+    if trash_list.is_empty() {
+        return Ok(());
+    };
+
+    if trash_list.into_iter().any(|item| {
+        item.name.to_string_lossy().to_string() == path.file_name().unwrap().to_string_lossy()
+    }) {
+        eprintln!("{}", format!("Error: An item with the name {:?} already exists in the trash.\nPlease rename the file or empty the trash before proceeding.", path.file_name().unwrap()).red());
+        Err("trash name conflict".into())
+    } else {
+        Ok(())
+    }
 }
 
 fn main() {
@@ -286,6 +302,10 @@ All the contents from the trash more then {days} days will be deleted permanentl
                     }
                 }
                 (false, _, _, _, _) => {
+                    if let Err(e) = check(&path) {
+                        eprintln!("{}", format!("Error checking trash: {e}").red());
+                        return;
+                    }
                     if let Err(e) = delete(&path) {
                         eprintln!("{}", format!("Error moving to trash: {e}").red());
                     }
