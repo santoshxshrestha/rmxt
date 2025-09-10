@@ -164,12 +164,9 @@ pub fn check_conflict(path: &Path) -> bool {
         }
     };
 
-    let has_conflict = trash_list
+    trash_list
         .iter()
-        .any(|item| item.name.to_string_lossy() == name);
-
-    // only did this to make it meaning full for other fn
-    has_conflict
+        .any(|item| item.name.to_string_lossy() == name)
 }
 
 fn main() {
