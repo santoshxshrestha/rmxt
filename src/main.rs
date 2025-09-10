@@ -13,14 +13,14 @@ use trash::os_limited;
 use trash::{TrashItem, delete};
 
 #[derive(Tabled)]
-pub struct List {
+struct List {
     name: String,
     original_location: String,
     deleted_at: String,
 }
 
 impl List {
-    pub fn new(name: String, original_location: String, deleted_at: String) -> Self {
+    fn new(name: String, original_location: String, deleted_at: String) -> Self {
         Self {
             name,
             original_location,
@@ -29,7 +29,7 @@ impl List {
     }
 }
 
-pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
+fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
     let mut list: Vec<List> = vec![];
     let entries = os_limited::list()?;
     let now = Local::now().timestamp();
@@ -55,7 +55,7 @@ pub fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
     Ok(())
 }
 
-pub fn list_trash() {
+fn list_trash() {
     let mut list: Vec<List> = vec![];
     match os_limited::list() {
         Ok(trash) => {
@@ -83,7 +83,7 @@ pub fn list_trash() {
     }
 }
 
-pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
+fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     let seconds: i64 = days * 86400;
     let cutoff_time = Local::now().timestamp() - seconds;
     let content_to_purge = trash::os_limited::list()?
@@ -103,7 +103,7 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     }
     Ok(())
 }
-pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
+fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
     let name = match path.file_name() {
         Some(name) => name.to_string_lossy(),
         None => {
@@ -147,7 +147,7 @@ pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn check_conflict(path: &Path) -> bool {
+fn check_conflict(path: &Path) -> bool {
     let name = match path.file_name() {
         Some(name) => name.to_string_lossy(),
         None => {
