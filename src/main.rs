@@ -103,12 +103,12 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     }
     Ok(())
 }
-pub fn resolve_conflict(path: &PathBuf) {
+pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
     let file_name = match path.file_name() {
         Some(name) => name.to_string_lossy(),
         None => {
             eprintln!("{}", "Path does not have a valid filename".red());
-            return;
+            return Ok(());
         }
     };
 
@@ -135,10 +135,7 @@ pub fn resolve_conflict(path: &PathBuf) {
         .yellow()
     );
 
-    if let Err(e) = fs::rename(path, &new_name) {
-        eprintln!("{}", format!("Error renaming file: {e}").red());
-        return;
-    }
+    fs::rename(path, &new_name)?;
 
     if let Err(e) = delete(&new_name) {
         eprintln!(
@@ -146,6 +143,8 @@ pub fn resolve_conflict(path: &PathBuf) {
             format!("Error moving {} to trash: {e}", path.display()).red()
         );
     }
+
+    Ok(())
 }
 
 pub fn check_conflict(path: &PathBuf) -> bool {
@@ -355,7 +354,11 @@ All the contents from the trash more then {days} days will be deleted permanentl
                 }
                 (false, _, _, _, _) => {
                     match check_conflict(&path) {
-                        true => resolve_conflict(&path),
+                        true => {
+                            if let Err(e) = resolve_conflict(&path) {
+                                eprintln!("{}", format!("Error resolving conflict: {e}").red());
+                            }
+                        }
                         false => {
                             if let Err(e) = delete(&path) {
                                 eprintln!(
