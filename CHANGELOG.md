@@ -7,15 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.12] - 2025-09-07
+## [0.1.12] - 2025-09-10
 
 ### Changed
-- **Conflicting trash items**: Updated logic to handle conflicts when recovering files with the same name.
-  Now, if a file with the same name exists in the original location, the recovered file will be renamed with a timestamp suffix to avoid overwriting.
+- **Improved variable naming**: Updated variable names to be more descriptive and consistent across the codebase.
 
 ### Fixed
 
-### Added
+- **Conflicting trash items**: Updated logic to handle conflicts when recovering files with the same name.
+  Now, if a file with the same name exists in the original location, the recovered file will be renamed with a timestamp suffix to avoid overwriting.
+
 
 ## [0.1.11] - 2025-09-07
 
