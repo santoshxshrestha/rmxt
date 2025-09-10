@@ -4,7 +4,6 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 
 ## Features
 
-- **Cross-platform trash support** - Works on Linux, macOS, and Windows
 - **File recovery** - Restore individual files, files from specific day to now or all files from trash
 - **Trash management** - List, purge, and automatically clean old files
 - **Shell integration** - Drop-in replacement for `rm` command
@@ -12,13 +11,14 @@ A safer, recoverable alternative to the traditional `rm` command that moves file
 - **Flexible options** - Force, recursive, and bypass modes available
 - **Enhanced output** - Colored error messages and formatted table display for trash listings
 - **Time-based operations** - Filter and manage files based on deletion timestamps
+- **Name conflict resolution** - Automatically appends the current date and time as a suffix if a file with the same name already exists in the trash
 
 ## Documentation
 
 For comprehensive guides and detailed examples, see our modular documentation:
 
 - **[Installation Guide](docs/install.md)** - Detailed installation instructions for all platforms
-- **[Usage Guide](docs/usage.md)** - Comprehensive usage examples and workflows  
+- **[Usage Guide](docs/usage.md)** - Comprehensive usage examples and workflows
 - **[Advanced Features](docs/advanced.md)** - Shell integration, automation, and troubleshooting
 
 ## Quick Start
@@ -48,7 +48,7 @@ rmxt file.txt directory/
 # List files in trash
 rmxt list
 
-# Recover files from trash  
+# Recover files from trash
 rmxt recover file.txt
 rmxt recover-all
 
@@ -75,7 +75,7 @@ For complete shell integration including advanced configurations, tab completion
 
 | Flag | Long Form     | Description                                 |
 | ---- | ------------- | ------------------------------------------- |
-| `-p` | `--permanent`    | Permanently delete without using trash      |
+| `-p` | `--permanent` | Permanently delete without using trash      |
 | `-r` | `--recursive` | Remove directories and contents recursively |
 | `-f` | `--force`     | Force removal without prompts               |
 | `-d` | `--dir`       | Remove empty directories                    |
@@ -83,13 +83,13 @@ For complete shell integration including advanced configurations, tab completion
 
 ### Commands
 
-| Command          | Description                                      |
-| ---------------- | ------------------------------------------------ |
-| `list [-t days]` | Show files in trash with optional time filter   |
-| `recover <name>` | Restore specific file from trash                |
-| `recover-all`    | Restore all files from trash                    |
-| `purge <name>`   | Permanently delete specific file from trash     |
-| `tidy [-t days]` | Remove old files from trash (default: 30 days)  |
+| Command          | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `list [-t days]` | Show files in trash with optional time filter  |
+| `recover <name>` | Restore specific file from trash               |
+| `recover-all`    | Restore all files from trash                   |
+| `purge <name>`   | Permanently delete specific file from trash    |
+| `tidy [-t days]` | Remove old files from trash (default: 30 days) |
 
 > **⚠️ Warning:** The `-p, --permanent` flag permanently deletes files without moving them to trash. Use with caution!
 
@@ -105,7 +105,7 @@ For power users and complex workflows:
 Having issues? Check the **[Advanced Features Guide](docs/advanced.md#troubleshooting)** for solutions to common problems:
 
 - Installation and compilation issues
-- Permission and access problems  
+- Permission and access problems
 - Recovery and trash system issues
 
 ## Cross-Platform Support
@@ -143,21 +143,10 @@ cargo test
 # Install locally for testing
 cargo install --path .
 ```
-
-### Recent Updates (v0.1.8)
-
-- Enhanced user interface with colored error messages
-- Improved output formatting with clean table display
-- Better error handling throughout the application
-- Time-based filtering for all commands
-- Multiple file support for recover and purge commands
-- Updated to Rust 2024 edition
-
+---
 ### Planned Improvements
 
-- Replace `unwrap()` calls with proper error propagation
 - Enhanced configuration options for trash behavior
-- More robust file conflict resolution
 - Performance optimizations for large directories
 
 For technical details and advanced development topics, see the documentation guides.
