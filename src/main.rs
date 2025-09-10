@@ -1,5 +1,6 @@
 use chrono::{Local, TimeZone};
 use colored::Colorize;
+use std::path::Path;
 use tabled::settings::object::Columns;
 use tabled::settings::{Alignment, Style};
 use tabled::{Table, Tabled};
@@ -146,7 +147,7 @@ pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn check_conflict(path: &PathBuf) -> bool {
+pub fn check_conflict(path: &Path) -> bool {
     let name = match path.file_name() {
         Some(name) => name.to_string_lossy(),
         None => {
@@ -167,7 +168,8 @@ pub fn check_conflict(path: &PathBuf) -> bool {
         .iter()
         .any(|item| item.name.to_string_lossy() == name);
 
-    return has_conflict;
+    // only did this to make it meaning full for other fn
+    has_conflict
 }
 
 fn main() {
