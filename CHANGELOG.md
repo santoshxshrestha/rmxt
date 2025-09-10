@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.12] - 2025-09-10
+## [0.1.12] - 2025-09-11
 
 ### Changed
 - **Improved variable naming**: Updated variable names to be more descriptive and consistent across the codebase.
+- **Changed the visibility**: Changed the visibility of the functions, methods, ... etc
+- Update documentation
 
 ### Fixed
 
