@@ -104,17 +104,21 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     Ok(())
 }
 pub fn resolve_conflict(path: &PathBuf) {
-    let file_name = path
-        .file_name()
-        .ok_or("Path does not have a valid filename")
-        .unwrap()
-        .to_string_lossy();
+    let file_name = match path.file_name() {
+        Some(name) => name.to_string_lossy(),
+        None => {
+            eprintln!("{}", "Path does not have a valid filename".red());
+            return;
+        }
+    };
 
     let timestamp = Local::now().format("%Y%m%d_%H%M%S");
+
     let stem = path
         .file_stem()
         .map(|s| s.to_string_lossy())
         .unwrap_or_else(|| file_name.clone());
+
     let extension = path
         .extension()
         .map(|ext| format!(".{}", ext.to_string_lossy()))
@@ -130,7 +134,11 @@ pub fn resolve_conflict(path: &PathBuf) {
         )
         .yellow()
     );
-    fs::rename(path, &new_name).unwrap();
+
+    if let Err(e) = fs::rename(path, &new_name) {
+        eprintln!("{}", format!("Error renaming file: {e}").red());
+        return;
+    }
 
     if let Err(e) = delete(&new_name) {
         eprintln!(
@@ -141,13 +149,21 @@ pub fn resolve_conflict(path: &PathBuf) {
 }
 
 pub fn check_conflict(path: &PathBuf) -> bool {
-    let file_name = path
-        .file_name()
-        .ok_or("Path does not have a valid filename")
-        .unwrap()
-        .to_string_lossy();
+    let file_name = match path.file_name() {
+        Some(name) => name.to_string_lossy(),
+        None => {
+            eprintln!("{}", "Path does not have a valid filename".red());
+            return false;
+        }
+    };
 
-    let trash_list = os_limited::list().unwrap();
+    let trash_list = match os_limited::list() {
+        Ok(items) => items,
+        Err(e) => {
+            eprintln!("{}", format!("Error listing trash items: {e}").red());
+            return false;
+        }
+    };
 
     let has_conflict = trash_list
         .iter()
