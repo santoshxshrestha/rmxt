@@ -103,53 +103,57 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     }
     Ok(())
 }
-
-pub fn check(path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+pub fn resolve_conflict(path: &PathBuf) {
     let file_name = path
         .file_name()
-        .ok_or("Path does not have a valid filename")?
+        .ok_or("Path does not have a valid filename")
+        .unwrap()
         .to_string_lossy();
 
-    let trash_list = os_limited::list()?;
+    let timestamp = Local::now().format("%Y%m%d_%H%M%S");
+    let stem = path
+        .file_stem()
+        .map(|s| s.to_string_lossy())
+        .unwrap_or_else(|| file_name.clone());
+    let extension = path
+        .extension()
+        .map(|ext| format!(".{}", ext.to_string_lossy()))
+        .unwrap_or_default();
+
+    let new_name = format!("{}_{}{}", stem, timestamp, extension);
+
+    eprintln!(
+        "{}",
+        format!(
+            "Conflict detected: '{}' already exists in trash. Would be renamed to: '{}'",
+            file_name, new_name
+        )
+        .yellow()
+    );
+    fs::rename(path, &new_name).unwrap();
+
+    if let Err(e) = delete(&new_name) {
+        eprintln!(
+            "{}",
+            format!("Error moving {} to trash: {e}", path.display()).red()
+        );
+    }
+}
+
+pub fn check_conflict(path: &PathBuf) -> bool {
+    let file_name = path
+        .file_name()
+        .ok_or("Path does not have a valid filename")
+        .unwrap()
+        .to_string_lossy();
+
+    let trash_list = os_limited::list().unwrap();
 
     let has_conflict = trash_list
         .iter()
         .any(|item| item.name.to_string_lossy() == file_name);
 
-    if has_conflict {
-        let timestamp = Local::now().format("%Y%m%d_%H%M%S");
-        let stem = path
-            .file_stem()
-            .map(|s| s.to_string_lossy())
-            .unwrap_or_else(|| file_name.clone());
-        let extension = path
-            .extension()
-            .map(|ext| format!(".{}", ext.to_string_lossy()))
-            .unwrap_or_default();
-
-        let new_name = format!("{}_{}{}", stem, timestamp, extension);
-
-        eprintln!(
-            "{}",
-            format!(
-                "Conflict detected: '{}' already exists in trash. Would be renamed to: '{}'",
-                file_name, new_name
-            )
-            .yellow()
-        );
-        fs::rename(path, &new_name)?;
-
-        if let Err(e) = delete(&new_name) {
-            eprintln!(
-                "{}",
-                format!("Error moving {} to trash: {e}", path.display()).red()
-            );
-        }
-
-        return Err("Name conflict with existing trash item".into());
-    }
-
-    Ok(())
+    return has_conflict;
 }
 
 fn main() {
@@ -334,19 +338,17 @@ All the contents from the trash more then {days} days will be deleted permanentl
                     }
                 }
                 (false, _, _, _, _) => {
-                    if let Err(e) = check(&path) {
-                        eprintln!(
-                            "{}",
-                            format!("Error checking trash for {}: {e}", path.display()).red()
-                        );
-                        return;
-                    }
-                    if let Err(e) = delete(&path) {
-                        eprintln!(
-                            "{}",
-                            format!("Error moving {} to trash: {e}", path.display()).red()
-                        );
-                    }
+                    match check_conflict(&path) {
+                        true => resolve_conflict(&path),
+                        false => {
+                            if let Err(e) = delete(&path) {
+                                eprintln!(
+                                    "{}",
+                                    format!("Error moving {} to trash: {e}", path.display()).red()
+                                );
+                            }
+                        }
+                    };
                 }
                 _ => {}
             }
