@@ -11,7 +11,7 @@ pub struct Args {
     #[command(subcommand)]
     pub command: Option<Commands>,
 
-    /// Don't put the file in trash, remove it permanently
+    /// Don't put the item in trash, remove it permanently
     #[arg(short = 'p', long, global = false)]
     pub permanent: bool,
 
@@ -19,7 +19,7 @@ pub struct Args {
     #[arg(short = 'r', long, global = false)]
     pub recursive: bool,
 
-    /// Force removal of files without prompt
+    /// Force removal of item without prompt
     #[arg(short = 'f', long, global = false)]
     pub force: bool,
 
@@ -30,15 +30,15 @@ pub struct Args {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    /// List files in the trash directory
+    /// List items in the trash directory
     #[command(name = "list")]
     List {
-        /// Specify time from which to list files (in days)
+        /// Specify time from which to list items (in days)
         #[arg(short = 't', long, global = false)]
         time: Option<i64>,
     },
 
-    /// Clean up the trash directory by removing files older than 30 days
+    /// Clean up the trash directory by removing files/directories older than 30 days
     #[command(name = "tidy")]
     Tidy {
         /// Specify time to live for tidy command (in days) (default is 30 days)
@@ -49,20 +49,20 @@ pub enum Commands {
     /// recover all the content of the trash
     #[command(name = "recover-all")]
     RecoverAll {
-        /// Specify time from which to recover files (in days)
+        /// Specify time from which to recover files/directories (in days)
         #[arg(short = 't', long, global = false)]
         time: Option<i64>,
     },
 
-    /// Recover files from the trash directory
+    /// Recover items from the trash directory
     #[command(name = "recover")]
     Recover {
-        /// Name of the file to recover
+        /// Name of the file/directorie to recover
         #[arg(help = "Name of the file to recover from trash")]
         name: Vec<String>,
     },
 
-    /// Purge files from the trash directory
+    /// Purge files/directorie from the trash directory
     #[command(name = "purge")]
     Purge {
         /// Purge files from the trash directory
@@ -72,8 +72,8 @@ pub enum Commands {
 }
 
 impl Args {
-    /// Get the files to remove, handling the default case
-    pub fn get_files(&self) -> Vec<PathBuf> {
+    /// Get the items to remove, handling the default case
+    pub fn get_items(&self) -> Vec<PathBuf> {
         match &self.command {
             Some(_) => Vec::new(),     // No files for list/tidy/recover commands
             None => self.file.clone(), // Use the default file argument
@@ -113,7 +113,7 @@ impl Args {
         matches!(self.command, Some(Commands::Purge { .. }))
     }
 
-    /// Get the name to purge (if purge command is active)
+    /// Get the name of the item to purge (if purge command is active)
     pub fn get_purge_name(&self) -> Vec<String> {
         match &self.command {
             Some(Commands::Purge { name }) => name.clone(),
@@ -143,7 +143,7 @@ impl Args {
         }
     }
 
-    /// Get the time from which to list files for list command
+    /// Get the time from which to list files/directories for list command
     pub fn get_time_list(&self) -> i64 {
         match &self.command {
             // Default to 0 days (which will be evaluated to all the content)if not specified

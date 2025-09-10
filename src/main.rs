@@ -1,14 +1,14 @@
 use chrono::{Local, TimeZone};
 use colored::Colorize;
-use tabled::{
-    Table, Tabled,
-    settings::{Alignment, Style, object::Columns},
-};
+use std::path::Path;
+use tabled::settings::object::Columns;
+use tabled::settings::{Alignment, Style};
+use tabled::{Table, Tabled};
 use trash::os_limited::restore_all;
 mod args;
 use args::Args;
 use clap::Parser;
-use std::fs;
+use std::{fs, path::PathBuf};
 use trash::os_limited;
 use trash::{TrashItem, delete};
 
@@ -103,12 +103,77 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     }
     Ok(())
 }
+pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
+    let name = match path.file_name() {
+        Some(name) => name.to_string_lossy(),
+        None => {
+            eprintln!("{}", "Path does not have a valid filename".red());
+            return Ok(());
+        }
+    };
+
+    let timestamp = Local::now().format("%Y%m%d_%H%M%S");
+
+    let stem = path
+        .file_stem()
+        .map(|s| s.to_string_lossy())
+        .unwrap_or_else(|| name.clone());
+
+    let extension = path
+        .extension()
+        .map(|ext| format!(".{}", ext.to_string_lossy()))
+        .unwrap_or_default();
+
+    let new_name = format!("{}_{}{}", stem, timestamp, extension);
+
+    eprintln!(
+        "{}",
+        format!(
+            "Conflict detected: '{}' already exists in trash. Would be renamed to: '{}'",
+            name, new_name
+        )
+        .yellow()
+    );
+
+    fs::rename(path, &new_name)?;
+
+    if let Err(e) = delete(&new_name) {
+        eprintln!(
+            "{}",
+            format!("Error moving {} to trash: {e}", path.display()).red()
+        );
+    }
+
+    Ok(())
+}
+
+pub fn check_conflict(path: &Path) -> bool {
+    let name = match path.file_name() {
+        Some(name) => name.to_string_lossy(),
+        None => {
+            eprintln!("{}", "Path does not have a valid filename".red());
+            return false;
+        }
+    };
+
+    let trash_list = match os_limited::list() {
+        Ok(items) => items,
+        Err(e) => {
+            eprintln!("{}", format!("Error listing trash items: {e}").red());
+            return false;
+        }
+    };
+
+    trash_list
+        .iter()
+        .any(|item| item.name.to_string_lossy() == name)
+}
 
 fn main() {
     // parsing the args
     let args = Args::parse();
 
-    let paths = args.get_files();
+    let paths = args.get_items();
     let recursive = args.recursive;
     let force = args.force;
     let dir = args.dir;
@@ -286,9 +351,21 @@ All the contents from the trash more then {days} days will be deleted permanentl
                     }
                 }
                 (false, _, _, _, _) => {
-                    if let Err(e) = delete(&path) {
-                        eprintln!("{}", format!("Error moving to trash: {e}").red());
-                    }
+                    match check_conflict(&path) {
+                        true => {
+                            if let Err(e) = resolve_conflict(&path) {
+                                eprintln!("{}", format!("Error resolving conflict: {e}").red());
+                            }
+                        }
+                        false => {
+                            if let Err(e) = delete(&path) {
+                                eprintln!(
+                                    "{}",
+                                    format!("Error moving {} to trash: {e}", path.display()).red()
+                                );
+                            }
+                        }
+                    };
                 }
                 _ => {}
             }

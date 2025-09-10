@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.12] - 2025-09-10
+
+### Changed
+- **Improved variable naming**: Updated variable names to be more descriptive and consistent across the codebase.
+
+### Fixed
+
+- **Conflicting trash items**: Updated logic to handle conflicts when recovering files with the same name.
+  Now, if a file with the same name exists in the original location, the recovered file will be renamed with a timestamp suffix to avoid overwriting.
+
+
 ## [0.1.11] - 2025-09-07
 
 ### Changed
@@ -17,11 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.10] - 2025-09-07
 
 ### Fixed
+
 - **Critical ignore flag bug**: Fixed issue where `-i, --ignore` flag was not functioning correctly, causing errors while trying to ingore them while using `rmxt` commands
 
 ### Changed
-- Imporved different cases handling in the ignore flag logic with match block
 
+- Imporved different cases handling in the ignore flag logic with match block
 
 ## [0.1.9] - 2025-09-01
 
