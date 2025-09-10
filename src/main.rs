@@ -1,9 +1,8 @@
 use chrono::{Local, TimeZone};
 use colored::Colorize;
-use tabled::{
-    Table, Tabled,
-    settings::{Alignment, Style, object::Columns},
-};
+use tabled::settings::object::Columns;
+use tabled::settings::{Alignment, Style};
+use tabled::{Table, Tabled};
 use trash::os_limited::restore_all;
 mod args;
 use args::Args;
@@ -104,7 +103,7 @@ pub fn tidy_trash(days: i64) -> Result<(), trash::Error> {
     Ok(())
 }
 pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
-    let file_name = match path.file_name() {
+    let name = match path.file_name() {
         Some(name) => name.to_string_lossy(),
         None => {
             eprintln!("{}", "Path does not have a valid filename".red());
@@ -117,7 +116,7 @@ pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
     let stem = path
         .file_stem()
         .map(|s| s.to_string_lossy())
-        .unwrap_or_else(|| file_name.clone());
+        .unwrap_or_else(|| name.clone());
 
     let extension = path
         .extension()
@@ -130,7 +129,7 @@ pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
         "{}",
         format!(
             "Conflict detected: '{}' already exists in trash. Would be renamed to: '{}'",
-            file_name, new_name
+            name, new_name
         )
         .yellow()
     );
@@ -148,7 +147,7 @@ pub fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
 }
 
 pub fn check_conflict(path: &PathBuf) -> bool {
-    let file_name = match path.file_name() {
+    let name = match path.file_name() {
         Some(name) => name.to_string_lossy(),
         None => {
             eprintln!("{}", "Path does not have a valid filename".red());
@@ -166,7 +165,7 @@ pub fn check_conflict(path: &PathBuf) -> bool {
 
     let has_conflict = trash_list
         .iter()
-        .any(|item| item.name.to_string_lossy() == file_name);
+        .any(|item| item.name.to_string_lossy() == name);
 
     return has_conflict;
 }
@@ -175,7 +174,7 @@ fn main() {
     // parsing the args
     let args = Args::parse();
 
-    let paths = args.get_files();
+    let paths = args.get_items();
     let recursive = args.recursive;
     let force = args.force;
     let dir = args.dir;
