@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.13] - 2025-09-18
+
 ### Added
 
 - **Flake package**: Added a Nix flake for packaging.
+
+### Fixed
+
+- **No args and path**: Handled the case of rmxt when running without passing the args and paths. Now, it displays the help message instead.
 
 ### Changed
 
