@@ -37,6 +37,22 @@ curl -fsSL https://raw.githubusercontent.com/santoshxshrestha/rmxt/main/scripts/
 cargo install rmxt
 ```
 
+### Nix Flake (for Nix users)
+
+If you use Nix, you can run or build `rmxt` without installing Rust:
+
+```bash
+nix run github:santoshxshrestha/rmxt
+```
+
+Or build the binary:
+
+```bash
+nix build github:santoshxshrestha/rmxt
+```
+
+See the **[Installation Guide](docs/install.md)** for full details and prerequisites.
+
 For detailed installation instructions including platform-specific setup, see the **[Installation Guide](docs/install.md)**.
 
 ## Basic Usage

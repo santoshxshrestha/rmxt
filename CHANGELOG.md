@@ -7,9 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Flake package**: Added a Nix flake for packaging.
+
+### Changed
+
+- update documentation about installation and README
+
 ## [0.1.12] - 2025-09-11
 
 ### Changed
+
 - **Improved variable naming**: Updated variable names to be more descriptive and consistent across the codebase.
 - **Changed the visibility**: Changed the visibility of the functions, methods, ... etc
 - Update documentation
@@ -18,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Conflicting trash items**: Updated logic to handle conflicts when recovering files with the same name.
   Now, if a file with the same name exists in the original location, the recovered file will be renamed with a timestamp suffix to avoid overwriting.
-
 
 ## [0.1.11] - 2025-09-07
 
