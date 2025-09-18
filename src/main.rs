@@ -314,7 +314,8 @@ All the contents from the trash more then {days} days will be deleted permanentl
                 eprintln!(
                     "{}",
                     format!("rmxt: cannot remove {path:?}: No such file or directory").red()
-                )
+                );
+                continue;
             }
             if path.is_dir() && dir {
                 if let Err(e) = fs::remove_dir(&path) {
