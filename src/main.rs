@@ -170,7 +170,6 @@ fn check_conflict(path: &Path) -> bool {
 }
 
 fn main() {
-    // parsing the args
     let args = Args::parse();
 
     let paths = args.get_items();
@@ -179,6 +178,14 @@ fn main() {
     let dir = args.dir;
     let permanent = args.permanent;
 
+    // Handling the case where no paths are provided and no subcommand is used
+    if paths.is_empty() && args.command.is_none() {
+        eprintln!("{}", "rmxt: missing operand".red());
+        eprintln!("{}", "Try 'rmxt --help' for more information.".yellow());
+        return;
+    }
+
+    // purging files from trash if the purge command is used
     if args.is_purge() {
         let names = args.get_purge_name();
         let content_to_purge = match trash::os_limited::list() {
@@ -200,6 +207,7 @@ fn main() {
         }
     }
 
+    // recovering all files from trash if the recover-all command is used
     if args.is_recover_all() {
         let seconds = args.get_time_recover() * 86400;
         let mut content_to_recover = vec![];
