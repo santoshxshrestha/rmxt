@@ -16,10 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **No args and path**: Handled the case of rmxt when running without passing the args and paths. Now, it displays the help message instead.
+- Improved error handling: after reporting a missing file or directory, the program now skips further processing for that path.
 
 ### Changed
 
 - update documentation about installation and README
+
 
 ## [0.1.12] - 2025-09-11
 
