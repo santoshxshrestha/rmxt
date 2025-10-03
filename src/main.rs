@@ -124,7 +124,7 @@ fn resolve_conflict(path: &PathBuf) -> std::io::Result<()> {
         .map(|ext| format!(".{}", ext.to_string_lossy()))
         .unwrap_or_default();
 
-    let new_name = format!("{}_{}{}", stem, timestamp, extension);
+    let new_name = format!("{stem}_{timestamp}{extension}");
 
     eprintln!(
         "{}",
