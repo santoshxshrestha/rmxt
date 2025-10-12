@@ -48,7 +48,7 @@ fn list_specific_trash(seconds: i64) -> Result<Vec<List>, trash::Error> {
             ));
         }
     }
-    return Ok(list);
+    Ok(list)
 }
 
 fn list_trash() -> Result<Vec<List>, trash::Error> {
@@ -67,7 +67,7 @@ fn list_trash() -> Result<Vec<List>, trash::Error> {
             time_deleted,
         ))
     }
-    return Ok(list);
+    Ok(list)
 }
 
 fn display_table(list: Vec<List>) {
