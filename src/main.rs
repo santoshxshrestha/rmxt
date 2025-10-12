@@ -29,7 +29,7 @@ impl List {
     }
 }
 
-fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
+fn list_specific_trash(seconds: i64) -> Result<Vec<List>, trash::Error> {
     let mut list: Vec<List> = vec![];
     let entries = os_limited::list()?;
     let now = Local::now().timestamp();
@@ -48,39 +48,33 @@ fn list_specific_trash(seconds: i64) -> Result<(), trash::Error> {
             ));
         }
     }
+    return Ok(list);
+}
+
+fn list_trash() -> Result<Vec<List>, trash::Error> {
+    let mut list: Vec<List> = vec![];
+    let trash = os_limited::list()?;
+    for entry in trash {
+        let time_deleted = Local
+            .timestamp_opt(entry.time_deleted, 0)
+            .single()
+            .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+            .unwrap_or_else(|| "Unknown time".to_string());
+
+        list.push(List::new(
+            entry.name.to_string_lossy().to_string(),
+            entry.original_path().to_string_lossy().to_string(),
+            time_deleted,
+        ))
+    }
+    return Ok(list);
+}
+
+fn display_table(list: Vec<List>) {
     let mut table = Table::new(&list);
     table.with(Style::rounded());
     table.modify(Columns::first(), Alignment::right());
     println!("{table}");
-    Ok(())
-}
-
-fn list_trash() {
-    let mut list: Vec<List> = vec![];
-    match os_limited::list() {
-        Ok(trash) => {
-            for entry in trash {
-                let time_deleted = Local
-                    .timestamp_opt(entry.time_deleted, 0)
-                    .single()
-                    .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
-                    .unwrap_or_else(|| "Unknown time".to_string());
-
-                list.push(List::new(
-                    entry.name.to_string_lossy().to_string(),
-                    entry.original_path().to_string_lossy().to_string(),
-                    time_deleted,
-                ))
-            }
-            let mut table = Table::new(&list);
-            table.with(Style::rounded());
-            table.modify(Columns::first(), Alignment::right());
-            println!("{table}");
-        }
-        Err(e) => {
-            eprintln!("{}", format!("Failed to list trash entries: {e}").red())
-        }
-    }
 }
 
 fn tidy_trash(days: i64) -> Result<(), trash::Error> {
@@ -244,11 +238,16 @@ fn main() {
     if args.is_list() {
         let seconds = args.get_time_list() * 86400;
         if seconds == 0 {
-            list_trash();
+            match list_trash() {
+                Ok(list) => display_table(list),
+                Err(e) => eprintln!("{}", format!("Failed to list trash entries: {e}").red()),
+            }
+
             return;
         } else {
-            if let Err(e) = list_specific_trash(seconds) {
-                eprintln!("{}", format!("Failed to list trash entries: {e}").red());
+            match list_specific_trash(seconds) {
+                Ok(list) => display_table(list),
+                Err(e) => eprintln!("{}", format!("Failed to list trash entries: {e}").red()),
             }
             return;
         }
